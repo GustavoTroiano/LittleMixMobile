@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "341192228717",
+    "project_id": "littlemixmobile",
+    "storage_bucket": "littlemixmobile.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:341192228717:android:49fecaa3b55a1c9e022464",
+        "android_client_info": {
+          "package_name": "com.example.littlemixmobile"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "341192228717-q89fvoi2vaqetuvoh853tqihpi6ioe0l.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.littlemixmobile",
+            "certificate_hash": "38eeb3f2e5516a5fc5d004a7c52737a319aef8ea"
+          }
+        },
+        {
+          "client_id": "341192228717-80vuk0k0daivgs6dfdjk9jgf2sst448f.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBLjQRwEA8L5fHg9y7Xj_CTZLyKHVXoN74"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "341192228717-80vuk0k0daivgs6dfdjk9jgf2sst448f.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
