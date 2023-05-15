@@ -38,6 +38,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class LojaFormProdutoActivity extends AppCompatActivity {
 
@@ -59,6 +60,8 @@ public class LojaFormProdutoActivity extends AppCompatActivity {
 
         configClicks();
 
+        inicializaComponentes();
+
     }
 
     private void configClicks() {
@@ -70,38 +73,42 @@ public class LojaFormProdutoActivity extends AppCompatActivity {
     public void validaDados(View view){
         String titulo = binding.edtTitulo.getText().toString().trim();
         String descricao = binding.edtDescricao.getText().toString().trim();
-        String valorAntigo = binding.edtValorAntigo.getText().toString().trim();
-        String valorAtual = binding.edtValorAtual.getText().toString().trim();
+        double valorAntigo = (double) binding.edtValorAntigo.getRawValue() / 100;
+        double valorAtual = (double) binding.edtValorAtual.getRawValue() / 100;
 
         if(!titulo.isEmpty()){
             if(!descricao.isEmpty()){
+                if (valorAtual > 0){
 
-                if(produto == null) produto = new Produto();
+                    if(produto == null) produto = new Produto();
 
-                produto.setTitulo(titulo);
-                produto.setDescricao(descricao);
-                produto.setValorAntigo(10);
-                produto.setValorAtual(8);
+                    produto.setTitulo(titulo);
+                    produto.setDescricao(descricao);
+                    produto.setValorAtual(valorAtual);
+                    if (valorAntigo > 0) produto.setValorAntigo(valorAntigo);
 
-                if(novoProduto){ // Novo produto
-                    if(imagemUploadList.size() == 3){
-                        for (int i = 0; i < imagemUploadList.size(); i++) {
-                            salvarImagemFirebase(imagemUploadList.get(i));
+                    if(novoProduto){ // Novo produto
+                        if(imagemUploadList.size() == 3){
+                            for (int i = 0; i < imagemUploadList.size(); i++) {
+                                salvarImagemFirebase(imagemUploadList.get(i));
+                            }
+                        }else{
+                            ocultaTeclado();
+                            Toast.makeText(this, "Escolha 3 imagens para o produto.", Toast.LENGTH_SHORT).show();
                         }
-                    }else{
-                        ocultaTeclado();
-                        Toast.makeText(this, "Escolha 3 imagens para o produto.", Toast.LENGTH_SHORT).show();
-                    }
-                }else { // Edição do produto
-                    if(imagemUploadList.size() > 0){
-                        for (int i = 0; i < imagemUploadList.size(); i++) {
-                            salvarImagemFirebase(imagemUploadList.get(i));
+                    }else { // Edição do produto
+                        if(imagemUploadList.size() > 0){
+                            for (int i = 0; i < imagemUploadList.size(); i++) {
+                                salvarImagemFirebase(imagemUploadList.get(i));
+                            }
+                        }else {
+                            produto.salvar(false);
                         }
-                    }else {
-                        produto.salvar(false);
                     }
+
+                }else {
+                    binding.edtValorAtual.setError("Informe um valor válido");
                 }
-
             }else {
                 binding.edtDescricao.setError("Informação obrigatória.");
             }
@@ -384,6 +391,11 @@ public class LojaFormProdutoActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         return bitmap;
+    }
+
+    private void inicializaComponentes(){
+        binding.edtValorAntigo.setLocale(new Locale("PT", "br"));
+        binding.edtValorAtual.setLocale(new Locale("PT", "br"));
     }
 
     // Oculta o teclado do dispotivo
