@@ -2,6 +2,7 @@ package com.example.littlemixmobile.activity.loja;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 
@@ -15,6 +16,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -24,9 +26,14 @@ import com.example.littlemixmobile.R;
 import com.example.littlemixmobile.databinding.ActivityLojaFormProdutoBinding;
 import com.example.littlemixmobile.databinding.BottomSheetFormProdutoBinding;
 import com.example.littlemixmobile.helper.FirebaseHelper;
+import com.example.littlemixmobile.model.Categoria;
 import com.example.littlemixmobile.model.ImagemUpload;
 import com.example.littlemixmobile.model.Produto;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.gun0912.tedpermission.PermissionListener;
@@ -41,6 +48,8 @@ import java.util.List;
 import java.util.Locale;
 
 public class LojaFormProdutoActivity extends AppCompatActivity {
+
+    private List<Categoria> categoriaList = new ArrayList<>();
 
     private List<ImagemUpload> imagemUploadList = new ArrayList<>();
     private Produto produto;
@@ -60,7 +69,9 @@ public class LojaFormProdutoActivity extends AppCompatActivity {
 
         configClicks();
 
-        inicializaComponentes();
+        iniciaComponentes();
+
+        recuperaCategorias();
 
     }
 
@@ -68,6 +79,31 @@ public class LojaFormProdutoActivity extends AppCompatActivity {
         binding.imagemProduto0.setOnClickListener(v -> showBottomSheet(0));
         binding.imagemProduto1.setOnClickListener(v -> showBottomSheet(1));
         binding.imagemProduto2.setOnClickListener(v -> showBottomSheet(2));
+    }
+
+    private void recuperaCategorias(){
+        DatabaseReference categoriaRef = FirebaseHelper.getDatabaseReference()
+                .child("categorias");
+        categoriaRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()){
+                    categoriaList.clear();
+                    for (DataSnapshot ds : snapshot.getChildren()){
+                        Categoria categoria = ds.getValue(Categoria.class);
+                        categoriaList.add(categoria);
+                    }
+                }else {
+
+                }
+                Log.i("INFOTESTE", "onDataChanged: " + categoriaList.size());
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 
     public void validaDados(View view){
@@ -393,7 +429,7 @@ public class LojaFormProdutoActivity extends AppCompatActivity {
         return bitmap;
     }
 
-    private void inicializaComponentes(){
+    private void iniciaComponentes(){
         binding.edtValorAntigo.setLocale(new Locale("PT", "br"));
         binding.edtValorAtual.setLocale(new Locale("PT", "br"));
     }
