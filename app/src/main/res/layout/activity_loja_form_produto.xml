@@ -186,6 +186,7 @@
                     android:layout_height="wrap_content"
                     android:background="@drawable/bg_borda_gray"
                     android:layout_marginTop="16dp"
+                    android:onClick="showDialogCategorias"
                     android:text="Nenhuma categoria selecionada"/>
 
                 <android.widget.Button
