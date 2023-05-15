@@ -165,35 +165,19 @@
                     android:layout_marginTop="16dp"
                     android:orientation="horizontal">
 
-                    <com.google.android.material.textfield.TextInputLayout
+                    <com.blackcat.currencyedittext.CurrencyEditText
+                        android:id="@+id/edtValorAntigo"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginEnd="8dp"
-                        android:theme="@style/EditTextTheme"
-                        android:layout_weight="1">
+                        android:layout_weight="1"
+                        android:backgroundTint="@android:color/transparent"/>
 
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/edtValorAntigo"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:backgroundTint="@android:color/transparent"
-                            android:hint="De R$" />
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <com.google.android.material.textfield.TextInputLayout
+                    <com.blackcat.currencyedittext.CurrencyEditText
+                        android:id="@+id/edtValorAtual"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:theme="@style/EditTextTheme"
-                        android:layout_weight="1">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/edtValorAtual"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:backgroundTint="@android:color/transparent"
-                            android:layout_marginStart="8dp"
-                            android:hint="Por R$" />
-                    </com.google.android.material.textfield.TextInputLayout>
+                        android:layout_weight="1"
+                        android:backgroundTint="@android:color/transparent"/>
 
                 </LinearLayout>
 
