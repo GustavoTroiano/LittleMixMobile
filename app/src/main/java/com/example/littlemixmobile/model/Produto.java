@@ -4,10 +4,11 @@ import com.example.littlemixmobile.helper.FirebaseHelper;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Exclude;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Produto {
+public class Produto implements Serializable {
 
     private String id; // Id Firebase
     private int idLocal; // Id Local

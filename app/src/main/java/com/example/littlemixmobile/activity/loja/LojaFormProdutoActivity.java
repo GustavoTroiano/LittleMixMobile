@@ -60,8 +60,10 @@ public class LojaFormProdutoActivity extends AppCompatActivity implements Catego
     private DialogFormProdutoCategoriaBinding categoriaBinding;
 
     private List<String> idsCategoriasSelecionadas = new ArrayList<>();
-
+    private List<String> categoriaSelecionadaList = new ArrayList<>();
     private List<Categoria> categoriaList = new ArrayList<>();
+
+
 
     private List<ImagemUpload> imagemUploadList = new ArrayList<>();
     private Produto produto;
@@ -89,7 +91,11 @@ public class LojaFormProdutoActivity extends AppCompatActivity implements Catego
 
     }
 
+    private void getExtra() {
+    }
+
     private void configClicks() {
+        binding.include.include.ibVoltar.setOnClickListener(v -> finish());
         binding.imagemProduto0.setOnClickListener(v -> showBottomSheet(0));
         binding.imagemProduto1.setOnClickListener(v -> showBottomSheet(1));
         binding.imagemProduto2.setOnClickListener(v -> showBottomSheet(2));
@@ -145,8 +151,6 @@ public class LojaFormProdutoActivity extends AppCompatActivity implements Catego
                         Categoria categoria = ds.getValue(Categoria.class);
                         categoriaList.add(categoria);
                     }
-                }else {
-
                 }
                 Collections.reverse(categoriaList);
             }
@@ -158,6 +162,22 @@ public class LojaFormProdutoActivity extends AppCompatActivity implements Catego
         });
     }
 
+    private void  categoriasSelecionadas()  {
+        StringBuilder categorias = new StringBuilder();
+        for (int i = 0; i < categoriaSelecionadaList.size(); i++){
+            if(i != categoriaSelecionadaList.size() -1){
+                categorias.append(categoriaSelecionadaList.get(i)).append(", ");
+            }else {
+                categorias.append(categoriaSelecionadaList.get(i));
+            }
+        }
+        if (!categoriaSelecionadaList.isEmpty()){
+            binding.bntCategorias.setText(categorias);
+        }else {
+            binding.bntCategorias.setText("Nenhuma categoria selecionada");
+        }
+    }
+
     public void validaDados(View view){
         String titulo = binding.edtTitulo.getText().toString().trim();
         String descricao = binding.edtDescricao.getText().toString().trim();
@@ -167,32 +187,38 @@ public class LojaFormProdutoActivity extends AppCompatActivity implements Catego
         if(!titulo.isEmpty()){
             if(!descricao.isEmpty()){
                 if (valorAtual > 0){
+                    if (!idsCategoriasSelecionadas.isEmpty()){
+                        if(produto == null) produto = new Produto();
 
-                    if(produto == null) produto = new Produto();
+                        produto.setTitulo(titulo);
+                        produto.setDescricao(descricao);
+                        produto.setValorAtual(valorAtual);
+                        if (valorAntigo > 0) produto.setValorAntigo(valorAntigo);
+                        produto.setIdsCategorias(idsCategoriasSelecionadas);
 
-                    produto.setTitulo(titulo);
-                    produto.setDescricao(descricao);
-                    produto.setValorAtual(valorAtual);
-                    if (valorAntigo > 0) produto.setValorAntigo(valorAntigo);
-
-                    if(novoProduto){ // Novo produto
-                        if(imagemUploadList.size() == 3){
-                            for (int i = 0; i < imagemUploadList.size(); i++) {
-                                salvarImagemFirebase(imagemUploadList.get(i));
+                        if(novoProduto){ // Novo produto
+                            if(imagemUploadList.size() == 3){
+                                for (int i = 0; i < imagemUploadList.size(); i++) {
+                                    salvarImagemFirebase(imagemUploadList.get(i));
+                                }
+                            }else{
+                                ocultaTeclado();
+                                Toast.makeText(this, "Escolha 3 imagens para o produto.", Toast.LENGTH_SHORT).show();
                             }
-                        }else{
-                            ocultaTeclado();
-                            Toast.makeText(this, "Escolha 3 imagens para o produto.", Toast.LENGTH_SHORT).show();
-                        }
-                    }else { // Edição do produto
-                        if(imagemUploadList.size() > 0){
-                            for (int i = 0; i < imagemUploadList.size(); i++) {
-                                salvarImagemFirebase(imagemUploadList.get(i));
+                        }else { // Edição do produto
+                            if(imagemUploadList.size() > 0){
+                                for (int i = 0; i < imagemUploadList.size(); i++) {
+                                    salvarImagemFirebase(imagemUploadList.get(i));
+                                }
+                            }else {
+                                produto.salvar(false);
                             }
-                        }else {
-                            produto.salvar(false);
                         }
+                    }else{
+                        ocultaTeclado();
+                        Toast.makeText(this, "Selecione pelo menos uma categoria para o prouto.", Toast.LENGTH_SHORT).show();
                     }
+
 
                 }else {
                     binding.edtValorAtual.setError("Informe um valor válido");
@@ -484,6 +510,12 @@ public class LojaFormProdutoActivity extends AppCompatActivity implements Catego
     private void iniciaComponentes(){
         binding.edtValorAntigo.setLocale(new Locale("PT", "br"));
         binding.edtValorAtual.setLocale(new Locale("PT", "br"));
+
+        if (novoProduto){
+            binding.include.textTitulo.setText("Novo produto");
+        }else {
+            binding.include.textTitulo.setText("Edição produto");
+        }
     }
 
     // Oculta o teclado do dispotivo
@@ -494,7 +526,15 @@ public class LojaFormProdutoActivity extends AppCompatActivity implements Catego
     }
 
     @Override
-    public void onClickListener(Categoria categoria) {
+    public void onClickListener(Categoria categoria) { //add
+        if(!idsCategoriasSelecionadas.contains(categoria.getId())){
+            idsCategoriasSelecionadas.add(categoria.getId());
+            categoriaSelecionadaList.add(categoria.getNome());
+        }else { //del
+            idsCategoriasSelecionadas.remove(categoria.getId());
+            categoriaSelecionadaList.remove(categoria.getNome());
+        }
 
+        categoriasSelecionadas();
     }
 }
