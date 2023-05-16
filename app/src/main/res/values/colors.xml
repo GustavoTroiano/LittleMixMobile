@@ -14,4 +14,7 @@
     <color name="colorIconeOnBnv">#000000</color>
     <color name="colorIconeOffBnv">#A9A9A9</color>
     <color name="color_delete">#FF0000</color>
+    <color name="Silver">#C0C0C0</color>
+    <color name="DinGray">#696969</color>
+    <color name="DarkGray">#A9A9A9</color>
 </resources>

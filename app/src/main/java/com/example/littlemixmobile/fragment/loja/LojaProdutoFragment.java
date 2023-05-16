@@ -84,16 +84,15 @@ public class LojaProdutoFragment extends Fragment implements LojaProdutoAdapter.
         produtoRef.addValueEventListener(new ValueEventListener(){
            @Override
            public void onDataChange(@NonNull DataSnapshot snapshot){
-               if (snapshot.exists()){
-                   produtoList.clear();
-                   for (DataSnapshot ds : snapshot.getChildren()){
-                       Produto produto = ds.getValue(Produto.class);
-                       produtoList.add(produto);
-                   }
-                   binding.textInfo.setText("");
-               }else {
-                    binding.textInfo.setText("Nenhum Produto cadastrado");
+
+               produtoList.clear();
+               for (DataSnapshot ds : snapshot.getChildren()){
+                   Produto produto = ds.getValue(Produto.class);
+                   produtoList.add(produto);
                }
+
+               listEmpty();
+
                binding.progressBar.setVisibility(View.GONE);
                Collections.reverse(produtoList);
                lojaProdutoAdapter.notifyDataSetChanged();
@@ -106,11 +105,22 @@ public class LojaProdutoFragment extends Fragment implements LojaProdutoAdapter.
         });
     }
 
+    private void listEmpty(){
+        if (produtoList.isEmpty()) {
+            binding.textInfo.setText("Nenhum Produto cadastrado");
+        }else {
+            binding.textInfo.setText("");
+        }
+    }
+
     private void showDialog(Produto produto) {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext(), R.style.CustomAlertDialog);
 
         DialogLojaProdutoBinding dialogBinding = DialogLojaProdutoBinding
                 .inflate(LayoutInflater.from(requireContext()));
+
+            dialogBinding.cbRascunho.setChecked(produto.isRascunho());
+
 
 
         for (int i = 0; i < produto.getUrlsImagens().size(); i++) {
@@ -119,6 +129,27 @@ public class LojaProdutoFragment extends Fragment implements LojaProdutoAdapter.
                 ).into(dialogBinding.imagemProduto);
             }
         }
+
+        dialogBinding.cbRascunho.setOnCheckedChangeListener((check, b) -> {
+            produto.setRascunho(check.isChecked());
+            produto.salvar(false);
+        });
+
+        dialogBinding.btnEditar.setOnClickListener(view -> {
+            Intent intent = new Intent(requireContext(), LojaFormProdutoActivity.class);
+            intent.putExtra("produtoSelecionado", produto);
+            startActivity(intent);
+            dialog.dismiss();
+        });
+
+        dialogBinding.btnRemover.setOnClickListener(view -> {
+            produto.remover();
+            dialog.dismiss();
+            Toast.makeText(requireContext(), "Produto removido com sucesso!", Toast.LENGTH_SHORT).show();
+
+            listEmpty();
+
+        });
 
         dialogBinding.txtNomeProduto.setText(produto.getTitulo());
 
