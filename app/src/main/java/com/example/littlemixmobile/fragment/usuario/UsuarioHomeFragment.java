@@ -2,20 +2,47 @@ package com.example.littlemixmobile.fragment.usuario;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.example.littlemixmobile.R;
+import com.example.littlemixmobile.adapter.CategoriaAdapter;
+import com.example.littlemixmobile.adapter.LojaProdutoAdapter;
+import com.example.littlemixmobile.databinding.FragmentUsuarioHomeBinding;
+import com.example.littlemixmobile.helper.FirebaseHelper;
+import com.example.littlemixmobile.model.Categoria;
+import com.example.littlemixmobile.model.Produto;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.ValueEventListener;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link UsuarioHomeFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
-public class UsuarioHomeFragment extends Fragment {
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+
+public class UsuarioHomeFragment extends Fragment implements CategoriaAdapter.onClick, LojaProdutoAdapter.OnclickLister {
+
+
+
+    private FragmentUsuarioHomeBinding binding;
+
+    private List<Categoria> categoriaList = new ArrayList<>();
+
+    private final List<Produto> produtoList = new ArrayList<>();
+
+    private CategoriaAdapter categoriaAdapter;
+    private LojaProdutoAdapter lojaProdutoAdapter;
+
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -30,14 +57,8 @@ public class UsuarioHomeFragment extends Fragment {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment UsuarioHomeFragment.
-     */
+
+
     // TODO: Rename and change types and number of parameters
     public static UsuarioHomeFragment newInstance(String param1, String param2) {
         UsuarioHomeFragment fragment = new UsuarioHomeFragment();
@@ -58,9 +79,115 @@ public class UsuarioHomeFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState){
+        super.onViewCreated(view, savedInstanceState);
+
+        configRvCategorias();
+
+        configRvProdutos();
+
+        recuperaCategorias();
+        recuperaProdutos();
+
+
+    }
+
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_usuario_home, container, false);
+        binding = FragmentUsuarioHomeBinding.inflate(inflater, container, false);
+        return binding.getRoot();
+    }
+
+    private void configRvCategorias(){
+        binding.rvCategorias.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
+        binding.rvCategorias.setHasFixedSize(true);
+        categoriaAdapter = new CategoriaAdapter(R.layout.item_categoria_horzontal, true, categoriaList, this);
+        binding.rvCategorias.setAdapter(categoriaAdapter);
+    }
+
+    private void recuperaCategorias(){
+        DatabaseReference categoriaRef = FirebaseHelper.getDatabaseReference()
+                .child("categorias");
+        categoriaRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                categoriaList.clear();
+
+                for (DataSnapshot ds : snapshot.getChildren()){
+                    Categoria categoria = ds.getValue(Categoria.class);
+                    categoriaList.add(categoria);
+
+                }
+
+                Collections.reverse(categoriaList);
+                categoriaAdapter.notifyDataSetChanged();
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    private void configRvProdutos(){
+        binding.rvProdutos.setLayoutManager(new GridLayoutManager(requireContext(), 2));
+        binding.rvProdutos.setHasFixedSize(true);
+        lojaProdutoAdapter = new LojaProdutoAdapter(produtoList, requireContext(), this);
+        binding.rvProdutos.setAdapter(lojaProdutoAdapter);
+    }
+
+    private void recuperaProdutos(){
+        DatabaseReference produtoRef = FirebaseHelper.getDatabaseReference()
+                .child("produtos");
+        produtoRef.addValueEventListener(new ValueEventListener(){
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot){
+
+                produtoList.clear();
+                for (DataSnapshot ds : snapshot.getChildren()){
+                    Produto produto = ds.getValue(Produto.class);
+                    produtoList.add(produto);
+                }
+
+                listEmpty();
+
+                binding.progressBar.setVisibility(View.GONE);
+                Collections.reverse(produtoList);
+                lojaProdutoAdapter.notifyDataSetChanged();
+            }
+            @Override
+            public void  onCancelled(@NonNull DatabaseError error){
+
+            }
+
+        });
+    }
+
+    private void listEmpty(){
+        if (produtoList.isEmpty()) {
+            binding.textInfo.setText("Nenhum Produto cadastrado");
+        }else {
+            binding.textInfo.setText("");
+        }
+    }
+
+    @Override
+    public void onDestroyView(){
+        super.onDestroyView();
+        binding = null;
+    }
+
+    @Override
+    public void onClickListener(Categoria categoria) {
+        Toast.makeText(requireContext(), categoria.getNome(), Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onClick(Produto produto) {
+
     }
 }

@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'com.google.gms.google-services'
+    id 'org.jetbrains.kotlin.android'
 }
 
 android {
@@ -15,6 +16,7 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
     }
 
     buildTypes {
@@ -62,5 +64,13 @@ dependencies {
 
     // https://github.com/BlacKCaT27/CurrencyEditText
     implementation 'com.github.BlacKCaT27:CurrencyEditText:2.0.2'
+
+    // https://github.com/santalu/maskara
+    implementation 'com.github.santalu:maskara:1.0.0'
+
+
+    // https://github.com/jd-alexander/LikeButton
+    implementation 'com.github.jd-alexander:LikeButton:0.2.3'
+
 
 }

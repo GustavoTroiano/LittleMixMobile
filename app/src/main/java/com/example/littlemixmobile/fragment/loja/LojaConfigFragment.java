@@ -11,9 +11,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.example.littlemixmobile.R;
 import com.example.littlemixmobile.activity.loja.LojaConfigActivity;
+import com.example.littlemixmobile.activity.loja.LojaRecebimentosActivity;
+import com.example.littlemixmobile.activity.usuario.MainActivityUsuario;
 import com.example.littlemixmobile.databinding.FragmentLojaConfigBinding;
+import com.example.littlemixmobile.helper.FirebaseHelper;
 
 
 public class LojaConfigFragment extends Fragment {
@@ -39,6 +41,21 @@ public class LojaConfigFragment extends Fragment {
         binding.btnConfigLoja.setOnClickListener(view -> {
             startActivity(LojaConfigActivity.class);
         });
+
+
+
+        binding.btnPagamentos.setOnClickListener(view -> {
+            startActivity(LojaRecebimentosActivity.class);
+        });
+
+        binding.btnDeslogar.setOnClickListener(view -> {
+
+            FirebaseHelper.getAuth().signOut();
+            requireActivity().finish();
+            startActivity(MainActivityUsuario.class);
+        });
+
+
     }
 
     private void startActivity(Class<?> clazz){
