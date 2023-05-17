@@ -11,6 +11,7 @@
        android:layout_width="match_parent"
        android:layout_height="wrap_content"
        android:layout_marginHorizontal="16dp"
+       android:layout_marginTop="16dp"
        android:background="@drawable/bg_pesquisa"
        android:inputType="textCapSentences"
        app:iconifiedByDefault="false"
@@ -18,7 +19,7 @@
        app:layout_constraintStart_toStartOf="parent"
        app:layout_constraintTop_toTopOf="parent"
        app:queryBackground="@android:color/transparent"
-       app:queryHint="Bermudas, Camisas, sapatos e etc..." />
+       app:queryHint="Bermudas, Camisas, Sapatos e etc..." />
 
    <TextView
        android:id="@+id/textView9"
@@ -26,7 +27,7 @@
        android:layout_height="wrap_content"
        android:layout_margin="16dp"
        android:text="Categorias"
-       android:textColor="@color/color_cinza"
+       android:textColor="@color/color_gray"
        android:textStyle="bold"
        tools:layout_editor_absoluteX="16dp"
        app:layout_constraintStart_toStartOf="parent"
