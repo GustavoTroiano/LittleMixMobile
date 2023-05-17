@@ -20,6 +20,7 @@ import com.example.littlemixmobile.adapter.LojaProdutoAdapter;
 import com.example.littlemixmobile.databinding.DialogLojaProdutoBinding;
 import com.example.littlemixmobile.databinding.FragmentLojaProdutoBinding;
 import com.example.littlemixmobile.helper.FirebaseHelper;
+import com.example.littlemixmobile.model.Categoria;
 import com.example.littlemixmobile.model.Produto;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -31,7 +32,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class LojaProdutoFragment extends Fragment implements LojaProdutoAdapter.OnclickLister {
+public class LojaProdutoFragment extends Fragment implements LojaProdutoAdapter.OnClickLister {
 
     private List<Produto> produtoList = new ArrayList<>();
 
@@ -56,10 +57,11 @@ public class LojaProdutoFragment extends Fragment implements LojaProdutoAdapter.
         configClicks();
 
         configRv();
+
     }
 
     @Override
-    public void onStart(){
+    public void onStart() {
         super.onStart();
 
         recuperaProdutos();
@@ -67,47 +69,47 @@ public class LojaProdutoFragment extends Fragment implements LojaProdutoAdapter.
 
     private void configClicks() {
         binding.toolbar.btnAdd.setOnClickListener(
-                v -> startActivity(new Intent(requireContext(), LojaFormProdutoActivity.class))
-        );
+                v -> startActivity(new Intent(requireContext(), LojaFormProdutoActivity.class)));
     }
 
-    private void configRv(){
+    private void configRv() {
         binding.rvProdutos.setLayoutManager(new GridLayoutManager(requireContext(), 2));
         binding.rvProdutos.setHasFixedSize(true);
-        lojaProdutoAdapter = new LojaProdutoAdapter(produtoList, requireContext(), this);
+        lojaProdutoAdapter = new LojaProdutoAdapter(produtoList, requireContext(), false, new ArrayList<>(), this, null);
         binding.rvProdutos.setAdapter(lojaProdutoAdapter);
     }
 
-    private void recuperaProdutos(){
+    private void recuperaProdutos() {
         DatabaseReference produtoRef = FirebaseHelper.getDatabaseReference()
                 .child("produtos");
-        produtoRef.addValueEventListener(new ValueEventListener(){
-           @Override
-           public void onDataChange(@NonNull DataSnapshot snapshot){
+        produtoRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
 
-               produtoList.clear();
-               for (DataSnapshot ds : snapshot.getChildren()){
-                   Produto produto = ds.getValue(Produto.class);
-                   produtoList.add(produto);
-               }
+                produtoList.clear();
+                for (DataSnapshot ds : snapshot.getChildren()) {
+                    Produto produto = ds.getValue(Produto.class);
+                    produtoList.add(produto);
+                }
 
-               listEmpty();
+                listEmpty();
 
-               binding.progressBar.setVisibility(View.GONE);
-               Collections.reverse(produtoList);
-               lojaProdutoAdapter.notifyDataSetChanged();
-           }
-           @Override
-            public void  onCancelled(@NonNull DatabaseError error){
+                binding.progressBar.setVisibility(View.GONE);
+                Collections.reverse(produtoList);
+                lojaProdutoAdapter.notifyDataSetChanged();
 
-           }
+            }
 
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
         });
     }
 
-    private void listEmpty(){
-        if (produtoList.isEmpty()) {
-            binding.textInfo.setText("Nenhum Produto cadastrado");
+    private void listEmpty() {
+        if(produtoList.isEmpty()){
+            binding.textInfo.setText("Nenhum produto cadastrado.");
         }else {
             binding.textInfo.setText("");
         }
@@ -119,9 +121,7 @@ public class LojaProdutoFragment extends Fragment implements LojaProdutoAdapter.
         DialogLojaProdutoBinding dialogBinding = DialogLojaProdutoBinding
                 .inflate(LayoutInflater.from(requireContext()));
 
-            dialogBinding.cbRascunho.setChecked(produto.isRascunho());
-
-
+        dialogBinding.cbRascunho.setChecked(produto.isRascunho());
 
         for (int i = 0; i < produto.getUrlsImagens().size(); i++) {
             if (produto.getUrlsImagens().get(i).getIndex() == 0) {
@@ -135,33 +135,31 @@ public class LojaProdutoFragment extends Fragment implements LojaProdutoAdapter.
             produto.salvar(false);
         });
 
-        dialogBinding.btnEditar.setOnClickListener(view -> {
+        dialogBinding.btnEditar.setOnClickListener(v -> {
             Intent intent = new Intent(requireContext(), LojaFormProdutoActivity.class);
             intent.putExtra("produtoSelecionado", produto);
             startActivity(intent);
             dialog.dismiss();
         });
 
-        dialogBinding.btnRemover.setOnClickListener(view -> {
+        dialogBinding.btnRemover.setOnClickListener(v -> {
             produto.remover();
             dialog.dismiss();
             Toast.makeText(requireContext(), "Produto removido com sucesso!", Toast.LENGTH_SHORT).show();
 
             listEmpty();
-
         });
 
         dialogBinding.txtNomeProduto.setText(produto.getTitulo());
 
         dialogBinding.btnFechar.setOnClickListener(v -> dialog.dismiss());
 
-
         builder.setView(dialogBinding.getRoot());
-
 
         dialog = builder.create();
         dialog.show();
     }
+
     @Override
     public void onClick(Produto produto) {
         showDialog(produto);
