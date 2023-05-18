@@ -28,6 +28,7 @@
                 app:layout_constraintTop_toTopOf="parent">
 
                 <ImageView
+                    android:id="@+id/imgProduto"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:padding="8dp"
@@ -36,7 +37,7 @@
             </androidx.cardview.widget.CardView>
 
             <ImageView
-                android:id="@+id/imageView4"
+                android:id="@+id/imgRemover"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
                 android:layout_margin="16dp"
@@ -45,7 +46,7 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
-                android:id="@+id/textView12"
+                android:id="@+id/textTitulo"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
@@ -53,13 +54,13 @@
                 android:layout_marginEnd="32dp"
                 android:ellipsize="end"
                 android:maxLines="3"
-                app:layout_constraintEnd_toStartOf="@+id/imageView4"
+                app:layout_constraintEnd_toStartOf="@+id/imgRemover"
                 app:layout_constraintStart_toEndOf="@+id/cardView7"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:text="Tênis Adidas Run Falcon" />
 
             <TextView
-                android:id="@+id/textView14"
+                android:id="@+id/textValor"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="16dp"
@@ -77,18 +78,20 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="32dp"
                 android:orientation="horizontal"
-                app:layout_constraintBottom_toBottomOf="@+id/textView14"
-                app:layout_constraintEnd_toStartOf="@+id/textView14"
+                app:layout_constraintBottom_toBottomOf="@+id/textValor"
+                app:layout_constraintEnd_toStartOf="@+id/textValor"
                 app:layout_constraintStart_toEndOf="@+id/cardView7"
-                app:layout_constraintTop_toTopOf="@+id/textView14">
+                app:layout_constraintTop_toTopOf="@+id/textValor">
 
                 <ImageButton
+                    android:id="@+id/ibMenos"
                     android:layout_width="28dp"
                     android:layout_height="28dp"
                     android:background="@drawable/bg_borda_cinza"
                     android:src="@drawable/ic_menos"/>
 
                 <TextView
+                    android:id="@+id/textQuantidade"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_marginHorizontal="16dp"
@@ -98,6 +101,7 @@
                     android:textStyle="bold"/>
 
                 <ImageButton
+                    android:id="@+id/ibMais"
                     android:layout_width="28dp"
                     android:layout_height="28dp"
                     android:background="@drawable/bg_borda_cinza"
