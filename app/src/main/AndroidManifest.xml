@@ -19,6 +19,9 @@
         android:theme="@style/Theme.LittleMixMobile"
         tools:targetApi="31">
         <activity
+            android:name=".activity.usuario.DetalhesProdutoActivity"
+            android:exported="false" />
+        <activity
             android:name=".activity.loja.LojaRecebimentosActivity"
             android:exported="false" />
         <activity

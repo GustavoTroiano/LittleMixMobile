@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     xmlns:tools="http://schemas.android.com/tools">
 
 
         <androidx.cardview.widget.CardView
             android:id="@+id/cardView4"
-            android:layout_width="match_parent"
+            android:layout_width="170dp"
             android:layout_margin="8dp"
             app:cardCornerRadius="5dp"
             android:elevation="5dp"
@@ -29,19 +29,20 @@
                         android:id="@+id/imagemProduto"
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
-                        android:layout_marginVertical="6dp"
+                        android:layout_marginVertical="8dp"
+
                         app:layout_constraintBottom_toTopOf="@+id/txtNomeProduto"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
                     <com.like.LikeButton
-                        android:background="@drawable/bg_like_button"
                         android:id="@+id/likeButton"
                         android:layout_width="30dp"
                         android:layout_height="30dp"
                         android:layout_marginEnd="8dp"
                         android:padding="8dp"
+                        android:background="@drawable/bg_like_button"
                         app:anim_scale_factor="2"
                         app:icon_size="20dp"
                         app:icon_type="Star"
@@ -72,8 +73,8 @@
                         android:id="@+id/linearLayout4"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginVertical="8dp"
                         android:layout_marginStart="8dp"
+                        android:layout_marginVertical="8dp"
                         android:orientation="horizontal"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
@@ -81,7 +82,7 @@
 
                         <TextView
                             android:id="@+id/txtValorProduto"
-                            android:layout_width="match_parent"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             tools:text="R$ 149,99" />
@@ -90,12 +91,12 @@
                             android:id="@+id/txtDescontoProduto"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:paddingHorizontal="10dp"
+                            android:background="@drawable/bg_desconto"
+                            android:textAlignment="textEnd"
+                            android:textColor="#00A650"
+                            android:paddingHorizontal="8dp"
                             android:paddingVertical="4dp"
                             android:textStyle="bold"
-                            android:textAlignment="textEnd"
-                            android:background="@drawable/bg_desconto"
-                            android:textColor="#00A650"
                             tools:text="-10%" />
 
 
