@@ -1,5 +1,6 @@
 package com.example.littlemixmobile.fragment.usuario;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -14,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.example.littlemixmobile.R;
+import com.example.littlemixmobile.activity.usuario.DetalhesProdutoActivity;
 import com.example.littlemixmobile.adapter.CategoriaAdapter;
 import com.example.littlemixmobile.adapter.LojaProdutoAdapter;
 import com.example.littlemixmobile.databinding.FragmentUsuarioHomeBinding;
@@ -57,11 +59,19 @@ public class UsuarioHomeFragment extends Fragment implements CategoriaAdapter.on
         configRvProdutos();
 
         recuperaCategorias();
-        recuperaProdutos();
 
         recuperaFavoritos();
 
     }
+
+    @Override
+    public void onStart(){
+        super.onStart();
+
+        recuperaProdutos();
+    }
+
+
 
     private void recuperaFavoritos() {
         if(FirebaseHelper.getAutenticado()){
@@ -127,7 +137,7 @@ public class UsuarioHomeFragment extends Fragment implements CategoriaAdapter.on
     private void configRvProdutos() {
         binding.rvProdutos.setLayoutManager(new GridLayoutManager(requireContext(), 2));
         binding.rvProdutos.setHasFixedSize(true);
-        lojaProdutoAdapter = new LojaProdutoAdapter(produtoList, requireContext(), true, idsFavoritos, this, this);
+        lojaProdutoAdapter = new LojaProdutoAdapter(R.layout.item_produto_adapter, produtoList, requireContext(), true, idsFavoritos, this, this);
         binding.rvProdutos.setAdapter(lojaProdutoAdapter);
     }
 
@@ -180,6 +190,9 @@ public class UsuarioHomeFragment extends Fragment implements CategoriaAdapter.on
 
     @Override
     public void onClick(Produto produto) {
+        Intent intent = new Intent(requireContext(), DetalhesProdutoActivity.class);
+        intent.putExtra("produtoSelecionado", produto);
+        startActivity(intent);
 
     }
 

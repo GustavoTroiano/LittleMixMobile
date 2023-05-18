@@ -52,5 +52,11 @@
         <item name="android:itemBackground">@drawable/bg_dialog</item>
     </style>
 
+    <style name="Search_View_Theme" >
+
+        <item name="android:editTextColor">#4E4E4E</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
 
 </resources>
