@@ -1,5 +1,7 @@
 package com.example.littlemixmobile.fragment.usuario;
 
+import android.app.AlertDialog;
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -10,14 +12,20 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.example.littlemixmobile.DAO.ItemDAO;
 import com.example.littlemixmobile.DAO.ItemPedidoDAO;
 import com.example.littlemixmobile.R;
+import com.example.littlemixmobile.activity.loja.LojaFormProdutoActivity;
 import com.example.littlemixmobile.adapter.CarrinhoAdapter;
+import com.example.littlemixmobile.databinding.DialogLojaProdutoBinding;
+import com.example.littlemixmobile.databinding.DialogRemoverCarrinhoBinding;
 import com.example.littlemixmobile.databinding.FragmentUsuarioCarrinhoBinding;
 import com.example.littlemixmobile.model.ItemPedido;
+import com.example.littlemixmobile.model.Produto;
 import com.example.littlemixmobile.util.GetMask;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,6 +41,8 @@ public class UsuarioCarrinhoFragment extends Fragment implements CarrinhoAdapter
 
     private ItemDAO itemDAO;
     private ItemPedidoDAO itemPedidoDAO;
+
+    private  AlertDialog dialog;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -60,10 +70,19 @@ public class UsuarioCarrinhoFragment extends Fragment implements CarrinhoAdapter
         carrinhoAdapter = new CarrinhoAdapter(itemPedidoList, itemPedidoDAO, requireContext(), this);
         binding.rvProdutos.setAdapter(carrinhoAdapter);
 
-        configSaldoCarrinho();
+        configTotalCarrinho();
+
+
     }
 
-    private void configSaldoCarrinho() {
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        configInfo();
+    }
+
+    private void configTotalCarrinho() {
         binding.textValor.setText(getString(R.string.valor_total_carrinho, GetMask.getValor(itemPedidoDAO.getTotalCarrinho())));
     }
 
@@ -73,8 +92,115 @@ public class UsuarioCarrinhoFragment extends Fragment implements CarrinhoAdapter
         binding = null;
     }
 
+
+    private void configQtdProduto(int position, String operacao){
+
+        ItemPedido itemPedido = itemPedidoList.get(position);
+
+        if (operacao.equals("mais")){// +
+
+            itemPedido.setQuantidade(itemPedido.getQuantidade() + 1);
+
+            itemPedidoDAO.atualizar(itemPedido);
+
+
+            itemPedidoList.set(position, itemPedido);
+
+        }else {// -
+
+            if (itemPedido.getQuantidade() > 1){
+
+                itemPedido.setQuantidade(itemPedido.getQuantidade());
+
+                itemPedidoDAO.atualizar(itemPedido);
+
+                itemPedidoList.set(position, itemPedido);
+
+            }
+
+        }
+
+        carrinhoAdapter.notifyDataSetChanged();
+        configTotalCarrinho();
+    }
+
+    private void showDialogRemover(Produto produto, int position) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext(), R.style.CustomAlertDialog);
+
+        DialogRemoverCarrinhoBinding dialogBinding = DialogRemoverCarrinhoBinding
+                .inflate(LayoutInflater.from(requireContext()));
+
+
+
+        Picasso.get().load(produto.getUrlsImagens().get(0).getCaminhoImagem()
+        ).into(dialogBinding.imagemProduto);
+
+        dialogBinding.txtNomeProduto.setText(produto.getTitulo());
+
+        dialogBinding.btnCancelar.setOnClickListener(v -> dialog.dismiss());
+
+        dialogBinding.btnAddFavorito.setOnClickListener(v -> {
+
+            dialog.dismiss();
+        });
+
+        dialogBinding.btnRemover.setOnClickListener(v -> {
+
+            removerProdutoCarrinho(position);
+            dialog.dismiss();
+            Toast.makeText(requireContext(), "Produto removido com sucesso!", Toast.LENGTH_SHORT).show();
+        });
+
+        builder.setView(dialogBinding.getRoot());
+
+        dialog = builder.create();
+        dialog.show();
+    }
+
+    private void removerProdutoCarrinho(int position){
+        ItemPedido itemPedido = itemPedidoList.get(position);
+
+        itemPedidoList.remove(itemPedido);
+
+        itemPedidoDAO.remover(itemPedido);
+
+        itemDAO.remover(itemPedido);
+
+        carrinhoAdapter.notifyDataSetChanged();
+
+        configInfo();
+
+        configTotalCarrinho();
+    }
+
+    private void configInfo(){
+
+        if (itemPedidoList.isEmpty()){
+            binding.textInfo.setVisibility(View.VISIBLE);
+        }else {
+            binding.textInfo.setVisibility(View.GONE);
+        }
+
+
+    }
+
+
     @Override
     public void onClickLister(int position, String operacao) {
 
+        int idProduto = itemPedidoList.get(position).getId();
+        Produto produto = itemPedidoDAO.getProduto(idProduto);
+
+        switch (operacao){
+            case "detalhe":
+            break;
+            case "remover":
+                showDialogRemover(produto, position);
+                break;
+            case "menos":
+            case "mais":
+                configQtdProduto( position, operacao);
+                break;
+        }
     }
 }
