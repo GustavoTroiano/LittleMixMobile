@@ -24,7 +24,7 @@ import java.util.List;
 
 public class LojaProdutoAdapter extends RecyclerView.Adapter<LojaProdutoAdapter.MyViewHolder> {
 
-    private int layout;
+    private final int layout;
     private final List<Produto> produtoList;
     private final Context context;
     private final boolean favorito;
@@ -56,9 +56,9 @@ public class LojaProdutoAdapter extends RecyclerView.Adapter<LojaProdutoAdapter.
         holder.txtNomeProduto.setText(produto.getTitulo());
 
         if(favorito){
-            if(idsFavoritos.contains(produto.getId())){
-                holder.likeButton.setLiked(true);
-            }
+            holder.likeButton.setLiked(idsFavoritos.contains(produto.getId()));
+        }else {
+            holder.likeButton.setVisibility(View.GONE);
         }
 
         if (produto.getValorAntigo() > 0) {
@@ -134,3 +134,4 @@ public class LojaProdutoAdapter extends RecyclerView.Adapter<LojaProdutoAdapter.
     }
 
 }
+

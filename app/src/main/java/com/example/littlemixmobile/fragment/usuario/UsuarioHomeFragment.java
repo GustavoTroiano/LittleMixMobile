@@ -56,56 +56,37 @@ public class UsuarioHomeFragment extends Fragment implements CategoriaAdapter.on
         super.onViewCreated(view, savedInstanceState);
 
         configRvCategorias();
+
         configRvProdutos();
-
-        recuperaCategorias();
-
-        recuperaFavoritos();
-
     }
 
     @Override
-    public void onStart(){
+    public void onStart() {
         super.onStart();
 
+        recuperaDados();
+    }
+
+    private void recuperaDados() {
+        recuperaCategorias();
+
         recuperaProdutos();
+
+        recuperaFavoritos();
     }
 
-
-
-    private void recuperaFavoritos() {
-        if(FirebaseHelper.getAutenticado()){
-            DatabaseReference favoritoRef = FirebaseHelper.getDatabaseReference()
-                    .child("favoritos")
-                    .child(FirebaseHelper.getIdFirebase());
-            favoritoRef.addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-
-                    idsFavoritos.clear();
-
-                    for(DataSnapshot ds : snapshot.getChildren()){
-                        String idFavorito = ds.getValue(String.class);
-                        idsFavoritos.add(idFavorito);
-                    }
-
-                    categoriaAdapter.notifyDataSetChanged();
-
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-
-                }
-            });
-        }
-    }
-
-    private void configRvCategorias(){
+    private void configRvCategorias() {
         binding.rvCategorias.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
         binding.rvCategorias.setHasFixedSize(true);
         categoriaAdapter = new CategoriaAdapter(R.layout.item_categoria_horzontal, true, categoriaList, this);
         binding.rvCategorias.setAdapter(categoriaAdapter);
+    }
+
+    private void configRvProdutos() {
+        binding.rvProdutos.setLayoutManager(new GridLayoutManager(requireContext(), 2));
+        binding.rvProdutos.setHasFixedSize(true);
+        lojaProdutoAdapter = new LojaProdutoAdapter(R.layout.item_produto_adapter, produtoList, requireContext(), true, idsFavoritos, this, this);
+        binding.rvProdutos.setAdapter(lojaProdutoAdapter);
     }
 
     private void recuperaCategorias() {
@@ -117,7 +98,7 @@ public class UsuarioHomeFragment extends Fragment implements CategoriaAdapter.on
 
                 categoriaList.clear();
 
-                for(DataSnapshot ds : snapshot.getChildren()){
+                for (DataSnapshot ds : snapshot.getChildren()) {
                     Categoria categoria = ds.getValue(Categoria.class);
                     categoriaList.add(categoria);
                 }
@@ -134,17 +115,10 @@ public class UsuarioHomeFragment extends Fragment implements CategoriaAdapter.on
         });
     }
 
-    private void configRvProdutos() {
-        binding.rvProdutos.setLayoutManager(new GridLayoutManager(requireContext(), 2));
-        binding.rvProdutos.setHasFixedSize(true);
-        lojaProdutoAdapter = new LojaProdutoAdapter(R.layout.item_produto_adapter, produtoList, requireContext(), true, idsFavoritos, this, this);
-        binding.rvProdutos.setAdapter(lojaProdutoAdapter);
-    }
-
     private void recuperaProdutos() {
         DatabaseReference produtoRef = FirebaseHelper.getDatabaseReference()
                 .child("produtos");
-        produtoRef.addValueEventListener(new ValueEventListener() {
+        produtoRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
 
@@ -169,18 +143,38 @@ public class UsuarioHomeFragment extends Fragment implements CategoriaAdapter.on
         });
     }
 
-    private void listEmpty() {
-        if(produtoList.isEmpty()){
-            binding.textInfo.setText("Nenhum produto cadastrado.");
-        }else {
-            binding.textInfo.setText("");
+    private void recuperaFavoritos() {
+        if (FirebaseHelper.getAutenticado()) {
+            DatabaseReference favoritoRef = FirebaseHelper.getDatabaseReference()
+                    .child("favoritos")
+                    .child(FirebaseHelper.getIdFirebase());
+            favoritoRef.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                    idsFavoritos.clear();
+
+                    for (DataSnapshot ds : snapshot.getChildren()) {
+                        String idFavorito = ds.getValue(String.class);
+                        idsFavoritos.add(idFavorito);
+                    }
+
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                }
+            });
         }
     }
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
+    private void listEmpty() {
+        if (produtoList.isEmpty()) {
+            binding.textInfo.setText("Nenhum produto cadastrado.");
+        } else {
+            binding.textInfo.setText("");
+        }
     }
 
     @Override
@@ -193,16 +187,23 @@ public class UsuarioHomeFragment extends Fragment implements CategoriaAdapter.on
         Intent intent = new Intent(requireContext(), DetalhesProdutoActivity.class);
         intent.putExtra("produtoSelecionado", produto);
         startActivity(intent);
-
     }
 
     @Override
     public void onClickFavorito(Produto produto) {
-        if(!idsFavoritos.contains(produto.getId())){
+        if (!idsFavoritos.contains(produto.getId())) {
             idsFavoritos.add(produto.getId());
-        }else {
+        } else {
             idsFavoritos.remove(produto.getId());
         }
         Favorito.salvar(idsFavoritos);
     }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
+    }
+
 }
+
