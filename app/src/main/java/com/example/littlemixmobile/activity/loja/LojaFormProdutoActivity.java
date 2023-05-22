@@ -573,7 +573,7 @@ public class LojaFormProdutoActivity extends AppCompatActivity implements Catego
         }
     }
 
-    // Oculta o teclado do dispotivo
+    // Oculta o teclado do dispositivo
     private void ocultaTeclado() {
         InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
         inputMethodManager.hideSoftInputFromWindow(binding.edtTitulo.getWindowToken(),
