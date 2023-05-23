@@ -154,6 +154,8 @@ public class LojaCategoriaFragment extends Fragment implements CategoriaAdapter.
             categoriaAdapter.notifyDataSetChanged();
         });
 
+        deleteBinding.textTitulo.setText("Deseja remover esta categoria?");
+
         deleteBinding.btnSim.setOnClickListener(view -> {
             categoriaList.remove(categoria);
 

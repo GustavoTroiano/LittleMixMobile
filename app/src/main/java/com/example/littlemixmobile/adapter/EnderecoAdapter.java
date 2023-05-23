@@ -1,5 +1,6 @@
 package com.example.littlemixmobile.adapter;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,11 +16,14 @@ import java.util.List;
 
 public class EnderecoAdapter extends RecyclerView.Adapter<EnderecoAdapter.MyViewHolder> {
 
-    private List<Endereco> enderecoList;
-    private OnClickListener clickListener;
+    private final List<Endereco> enderecoList;
+    private final Context context;
+    private final OnClickListener clickListener;
 
-    public EnderecoAdapter(List<Endereco> enderecoList, OnClickListener clickListener) {
+
+    public EnderecoAdapter(List<Endereco> enderecoList, Context context, OnClickListener clickListener) {
         this.enderecoList = enderecoList;
+        this.context = context;
         this.clickListener = clickListener;
     }
 
@@ -35,10 +39,12 @@ public class EnderecoAdapter extends RecyclerView.Adapter<EnderecoAdapter.MyView
         Endereco endereco = enderecoList.get(position);
 
         holder.textNomeEndereco.setText(endereco.getNomeEndereco());
-        holder.textLogradouro.setText(endereco.getLogradouro());
+        holder.textLogradouro.setText(context.getString(R.string.endereco_logradouro, endereco.getLogradouro()));
 
         if (!endereco.getNumero().isEmpty()) {
-            holder.textNumEndereco.setText(endereco.getNumero());
+            holder.textNumEndereco.setText(context.getString(R.string.endereco_numero, endereco.getNumero()));
+        }else {
+            holder.textNumEndereco.setVisibility(View.GONE);
         }
 
         holder.itemView.setOnClickListener(v -> clickListener.onClick(endereco));

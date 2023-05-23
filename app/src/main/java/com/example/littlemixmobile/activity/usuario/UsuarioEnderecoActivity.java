@@ -1,16 +1,42 @@
 package com.example.littlemixmobile.activity.usuario;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.Toast;
 
 import com.example.littlemixmobile.R;
+import com.example.littlemixmobile.adapter.EnderecoAdapter;
 import com.example.littlemixmobile.databinding.ActivityUsuarioEnderecoBinding;
+import com.example.littlemixmobile.databinding.DialogDeleteBinding;
+import com.example.littlemixmobile.helper.FirebaseHelper;
+import com.example.littlemixmobile.model.Categoria;
+import com.example.littlemixmobile.model.Endereco;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.ValueEventListener;
+import com.tsuryo.swipeablerv.SwipeLeftRightCallback;
 
-public class UsuarioEnderecoActivity extends AppCompatActivity {
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+public class UsuarioEnderecoActivity extends AppCompatActivity implements EnderecoAdapter.OnClickListener {
 
     private ActivityUsuarioEnderecoBinding binding;
+
+    private EnderecoAdapter enderecoAdapter;
+
+    private List<Endereco> enderecoList = new ArrayList<>();
+
+    private AlertDialog dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,6 +51,103 @@ public class UsuarioEnderecoActivity extends AppCompatActivity {
 
         configClicks();
 
+        configRv();
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        recuperaEndereco();
+    }
+
+    private  void configRv(){
+        binding.rvEnderecos.setLayoutManager(new LinearLayoutManager(this));
+        binding.rvEnderecos.setHasFixedSize(true);
+        enderecoAdapter = new EnderecoAdapter(enderecoList, this, this);
+        binding.rvEnderecos.setAdapter(enderecoAdapter);
+
+        binding.rvEnderecos.setListener(new SwipeLeftRightCallback.Listener() {
+            @Override
+            public void onSwipedLeft(int position) {
+
+            }
+
+            @Override
+            public void onSwipedRight(int position) {
+                showDialogDelete(enderecoList.get(position));
+            }
+        });
+    }
+
+    private void showDialogDelete(Endereco endereco) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(
+                this, R.style.CustomAlertDialog2);
+
+        DialogDeleteBinding deleteBinding = DialogDeleteBinding
+                .inflate(LayoutInflater.from(this));
+
+        deleteBinding.btnFechar.setOnClickListener(v -> {
+            dialog.dismiss();
+            enderecoAdapter.notifyDataSetChanged();
+        });
+
+        deleteBinding.textTitulo.setText("Deseja remover esta categoria?");
+
+        deleteBinding.btnSim.setOnClickListener(view -> {
+            enderecoList.remove(endereco);
+
+            if (enderecoList.isEmpty()){
+                binding.textInfo.setText("Nenhuma endereco cadastratado.");
+
+            }else{
+                binding.textInfo.setText("");
+            }
+
+            endereco.delete();
+
+            enderecoAdapter.notifyDataSetChanged();
+
+            dialog.dismiss();
+        });
+
+        builder.setView(deleteBinding.getRoot());
+
+        dialog = builder.create();
+        dialog.show();
+
+    }
+
+    private void recuperaEndereco(){
+        DatabaseReference enderecoRef = FirebaseHelper.getDatabaseReference()
+                .child("enderecos")
+                .child(FirebaseHelper.getIdFirebase());
+        enderecoRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()){
+                    enderecoList.clear();
+                    for (DataSnapshot ds : snapshot.getChildren()){
+                        Endereco endereco = ds.getValue(Endereco.class);
+                        enderecoList.add(endereco);
+                    }
+                    binding.textInfo.setText("");
+                }else {
+                    binding.textInfo.setText("Nenhum endereço cadastrado");
+                }
+
+                binding.progressBar.setVisibility(View.GONE);
+                Collections.reverse(enderecoList);
+                enderecoAdapter.notifyDataSetChanged();
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 
     private void configClicks(){
@@ -35,5 +158,12 @@ public class UsuarioEnderecoActivity extends AppCompatActivity {
     private void iniciaComponentes(){
         binding.include.textTitulo.setText("Meus endereços");
         binding.include.include.ibVoltar.setOnClickListener(v -> finish());
+    }
+
+    @Override
+    public void onClick(Endereco endereco) {
+        Intent intent = new Intent(this, UsuarioFormEnderecoActivity.class);
+        intent.putExtra("enderecoSelecionadado", endereco);
+        startActivity(intent);
     }
 }

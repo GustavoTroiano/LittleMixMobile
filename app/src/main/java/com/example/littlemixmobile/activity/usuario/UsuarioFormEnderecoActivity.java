@@ -16,6 +16,8 @@ public class UsuarioFormEnderecoActivity extends AppCompatActivity {
 
     private Endereco endereco;
 
+    private boolean novoEndereco = true;
+
     private ActivityUsuarioFormEnderecoBinding binding;
 
     @Override
@@ -28,6 +30,27 @@ public class UsuarioFormEnderecoActivity extends AppCompatActivity {
 
         configClicks();
 
+        getExtra();
+
+    }
+
+    private  void getExtra(){
+        Bundle bundle = getIntent().getExtras();
+        if (bundle != null){
+            endereco = (Endereco) bundle.getSerializable("enderecoSelecionadado");
+            configDados();
+            novoEndereco = false;
+        }
+    }
+
+    private void configDados(){
+        binding.edtNomeEndereco.setText(endereco.getNomeEndereco());
+        binding.edtCEP.setText(endereco.getCep());
+        binding.edtUF.setText(endereco.getUf());
+        binding.edtNumEndereco.setText(endereco.getNumero());
+        binding.edtLogradouro.setText(endereco.getLogradouro());
+        binding.edtBairro.setText(endereco.getBairro());
+        binding.edtMunicipio.setText(endereco.getLocalidade());
     }
 
     private void configClicks(){
@@ -65,7 +88,13 @@ public class UsuarioFormEnderecoActivity extends AppCompatActivity {
                                 endereco.setLocalidade(municipio);
 
                                 endereco.salvar();
-                                finish();
+                                binding.progressBar.setVisibility(View.GONE);
+
+                                if (novoEndereco){
+
+                                    finish();
+                                }
+
 
                             }else {
                                 binding.edtMunicipio.requestFocus();
