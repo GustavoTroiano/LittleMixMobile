@@ -129,7 +129,7 @@ public class ItemPedidoDAO {
         return itemPedidoList;
     }
 
-    public Double getTotalCarrinho() {
+    public Double getTotalPedido() {
         double total = 0;
         for (ItemPedido itemPedido : getList()){
             total += (itemPedido.getValor() * itemPedido.getQuantidade());
