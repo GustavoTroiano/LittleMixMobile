@@ -34,7 +34,7 @@ public class UsuarioEnderecoActivity extends AppCompatActivity implements Endere
 
     private EnderecoAdapter enderecoAdapter;
 
-    private List<Endereco> enderecoList = new ArrayList<>();
+    private final List<Endereco> enderecoList = new ArrayList<>();
 
     private AlertDialog dialog;
 

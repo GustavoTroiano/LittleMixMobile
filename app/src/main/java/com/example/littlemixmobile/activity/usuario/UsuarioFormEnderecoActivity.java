@@ -91,7 +91,9 @@ public class UsuarioFormEnderecoActivity extends AppCompatActivity {
                                 binding.progressBar.setVisibility(View.GONE);
 
                                 if (novoEndereco){
-
+                                    Intent intent = new Intent();
+                                    intent.putExtra("enderecoCadastrado", endereco);
+                                    setResult(RESULT_OK, intent);
                                     finish();
                                 }
 
