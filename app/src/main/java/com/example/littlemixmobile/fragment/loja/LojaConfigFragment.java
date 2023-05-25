@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.littlemixmobile.activity.loja.LojaConfigActivity;
+import com.example.littlemixmobile.activity.loja.LojaPagamentosActivity;
 import com.example.littlemixmobile.activity.loja.LojaRecebimentosActivity;
 import com.example.littlemixmobile.activity.usuario.MainActivityUsuario;
 import com.example.littlemixmobile.databinding.FragmentLojaConfigBinding;
@@ -45,7 +46,7 @@ public class LojaConfigFragment extends Fragment {
 
 
         binding.btnPagamentos.setOnClickListener(view -> {
-            startActivity(LojaRecebimentosActivity.class);
+            startActivity(LojaPagamentosActivity.class);
         });
 
         binding.btnDeslogar.setOnClickListener(view -> {

@@ -173,7 +173,7 @@
                 android:textAlignment="textEnd"
                 android:textColor="@color/black"
                 android:textSize="12sp"
-                tools:text="R$ 199,99" />
+                tools:text="R$ 0,00" />
 
         </LinearLayout>
 

@@ -1,5 +1,7 @@
 package com.example.littlemixmobile.activity.usuario;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -42,7 +44,7 @@ public class UsuarioResumoPedidoActivity extends AppCompatActivity {
 
     private void configClicks(){
         binding.btnAlterarEndereco.setOnClickListener(v -> {
-            startActivity(new Intent(this, UsuarioSelecionaEnderecoActivity.class));
+            resultLauncher.launch(new Intent(this, UsuarioSelecionaEnderecoActivity.class));
         });
     }
 
@@ -78,7 +80,7 @@ public class UsuarioResumoPedidoActivity extends AppCompatActivity {
             binding.btnAlterarEndereco.setText("Cadastrar endereço");
         }
 
-        binding.textValorTotal.setText(getString(R.string.valor_total_carrinho, GetMask.getValor(itemPedidoDAO.getTotalPedido())));
+        binding.textValorTotal.setText(getString(R.string.valor, GetMask.getValor(itemPedidoDAO.getTotalPedido())));
         binding.textValor.setText(getString(R.string.valor_total_carrinho, GetMask.getValor(itemPedidoDAO.getTotalPedido())));
     }
 
@@ -106,5 +108,18 @@ public class UsuarioResumoPedidoActivity extends AppCompatActivity {
             }
         });
     }
+
+    private final ActivityResultLauncher<Intent> resultLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == RESULT_OK){
+                    Endereco endereco = (Endereco) result.getData().getSerializableExtra("enderecoSelecionado");
+                    enderecoList.add(0, endereco);
+
+                    configDados();
+
+                }
+            }
+    );
 
 }
