@@ -83,6 +83,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:minHeight="0dp"
+                android:buttonTint="@color/black"
                 android:text="Desconto"/>
 
             <RadioButton
@@ -91,6 +92,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:minHeight="0dp"
+                android:buttonTint="@color/black"
                 android:text="Acréscimo"/>
 
         </RadioGroup>

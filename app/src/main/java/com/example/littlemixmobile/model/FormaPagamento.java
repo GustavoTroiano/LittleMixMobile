@@ -3,7 +3,9 @@ package com.example.littlemixmobile.model;
 import com.example.littlemixmobile.helper.FirebaseHelper;
 import com.google.firebase.database.DatabaseReference;
 
-public class FormaPagamento {
+import java.io.Serializable;
+
+public class FormaPagamento implements Serializable {
 
     private String id;
     private String nome;

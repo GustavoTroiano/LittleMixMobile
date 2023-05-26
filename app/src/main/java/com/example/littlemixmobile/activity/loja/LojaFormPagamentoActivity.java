@@ -1,8 +1,11 @@
 package com.example.littlemixmobile.activity.loja;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -23,6 +26,8 @@ public class LojaFormPagamentoActivity extends AppCompatActivity {
 
     private String tipoValor = null;
 
+    private boolean novoPagamento = true;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,6 +37,31 @@ public class LojaFormPagamentoActivity extends AppCompatActivity {
         iniciaComponentes();
 
         configClicks();
+
+        getExtra();
+
+    }
+
+    private void getExtra(){
+        Bundle bundle = getIntent().getExtras();
+        if (bundle != null){
+            formaPagamento = (FormaPagamento) bundle.getSerializable("formaPagamentoSelecionada");
+            configDados();
+        }
+    }
+
+    private void configDados() {
+        novoPagamento = false;
+
+        binding.edtFormaPagamento.setText(formaPagamento.getNome());
+        binding.edtDescricaoPagamento.setText(formaPagamento.getDescricao());
+        binding.edtValor.setText(String.valueOf(formaPagamento.getValor() * 10));
+
+        if (formaPagamento.getTipoValor().equals("DESC")){
+            binding.rgValor.check(R.id.rbDesconto);
+        }else {
+            binding.rgValor.check(R.id.rbAcrescimo);
+        }
 
     }
 
@@ -48,6 +78,8 @@ public class LojaFormPagamentoActivity extends AppCompatActivity {
             }
         });
     }
+
+
 
     private void validaDados(){
         String nome = binding.edtFormaPagamento.getText().toString().trim();
@@ -69,10 +101,19 @@ public class LojaFormPagamentoActivity extends AppCompatActivity {
 
                 if (formaPagamento.getTipoValor() != null){
                     formaPagamento.salvar();
-                    finish();
                 }else {
                     binding.progressBar.setVisibility(View.GONE);
                     Toast.makeText(this, "Selecione o tipo do valor", Toast.LENGTH_SHORT).show();
+                }
+
+                if (novoPagamento){
+                    Intent intent = new Intent();
+                    intent.putExtra("novoPagamento", formaPagamento);
+                    setResult(RESULT_OK, intent);
+                    finish();
+                }else {
+                    binding.progressBar.setVisibility(View.GONE);
+                    Toast.makeText(this, "Forma de Pagamento salva com sucesso.", Toast.LENGTH_SHORT).show();
                 }
 
             }else {
