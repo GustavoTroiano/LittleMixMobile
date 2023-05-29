@@ -14,6 +14,7 @@ import com.example.littlemixmobile.R;
 import com.example.littlemixmobile.databinding.ActivityUsuarioResumoPedidoBinding;
 import com.example.littlemixmobile.helper.FirebaseHelper;
 import com.example.littlemixmobile.model.Endereco;
+import com.example.littlemixmobile.model.FormaPagamento;
 import com.example.littlemixmobile.util.GetMask;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -30,6 +31,8 @@ public class UsuarioResumoPedidoActivity extends AppCompatActivity {
 
     private final List<Endereco> enderecoList = new ArrayList<>();
 
+    private FormaPagamento formaPagamento;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,6 +43,13 @@ public class UsuarioResumoPedidoActivity extends AppCompatActivity {
 
         configClicks();
 
+        getExtra();
+
+    }
+
+    private void getExtra(){
+        formaPagamento = (FormaPagamento) getIntent().getExtras().getSerializable("pagamentoSelecionado");
+        configDados();
     }
 
     private void configClicks(){

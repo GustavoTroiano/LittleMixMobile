@@ -19,6 +19,7 @@ import com.example.littlemixmobile.DAO.ItemPedidoDAO;
 import com.example.littlemixmobile.R;
 import com.example.littlemixmobile.activity.loja.LojaFormProdutoActivity;
 import com.example.littlemixmobile.activity.usuario.UsuarioResumoPedidoActivity;
+import com.example.littlemixmobile.activity.usuario.UsuarioSelecionaPagamentoActivity;
 import com.example.littlemixmobile.adapter.CarrinhoAdapter;
 import com.example.littlemixmobile.autenticacao.LoginActivity;
 import com.example.littlemixmobile.databinding.DialogLojaProdutoBinding;
@@ -88,7 +89,7 @@ public class UsuarioCarrinhoFragment extends Fragment implements CarrinhoAdapter
         binding.btnContinuar.setOnClickListener(v -> {
             Intent intent;
             if (FirebaseHelper.getAutenticado()) {
-                intent =  new Intent(requireContext(), UsuarioResumoPedidoActivity.class);
+                intent =  new Intent(requireContext(), UsuarioSelecionaPagamentoActivity.class);
             }else {
                 intent =  new Intent(requireContext(), LoginActivity.class);
             }
