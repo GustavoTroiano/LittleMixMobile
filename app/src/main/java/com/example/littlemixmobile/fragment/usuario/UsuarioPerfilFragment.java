@@ -36,6 +36,15 @@ public class UsuarioPerfilFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         configClicks();
+
+
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        configMenu();
     }
 
     private void configClicks() {
@@ -57,6 +66,18 @@ public class UsuarioPerfilFragment extends Fragment {
             startActivity(new Intent(requireContext(), clazz));
         } else {
             startActivity(new Intent(requireContext(), LoginActivity.class));
+        }
+    }
+
+    private void configMenu() {
+        if (FirebaseHelper.getAutenticado()){
+            binding.llLogado.setVisibility(View.GONE);
+            binding.btnDeslogar.setVisibility(View.VISIBLE);
+        }else{
+            binding.llLogado.setVisibility(View.VISIBLE);
+            binding.btnDeslogar.setVisibility(View.GONE);
+
+
         }
     }
 

@@ -17,6 +17,7 @@ import com.example.littlemixmobile.helper.FirebaseHelper;
 import com.example.littlemixmobile.model.Endereco;
 import com.example.littlemixmobile.model.FormaPagamento;
 import com.example.littlemixmobile.model.Pedido;
+import com.example.littlemixmobile.model.StatusPedido;
 import com.example.littlemixmobile.util.GetMask;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -76,7 +77,7 @@ public class UsuarioResumoPedidoActivity extends AppCompatActivity {
         pedido.setEndereco(enderecoList.get(0));
         pedido.setTotal(itemPedidoDAO.getTotalPedido());
         pedido.setPagamento(formaPagamento.getNome());
-        pedido.setStatus(1);
+        pedido.setStatusPedido(StatusPedido.PENDENTE);
 
         if (formaPagamento.getTipoValor().equals("DESC")) {
             pedido.setDesconto(formaPagamento.getValor());
@@ -87,6 +88,13 @@ public class UsuarioResumoPedidoActivity extends AppCompatActivity {
         pedido.setItemPedidoList(itemPedidoDAO.getList());
 
         pedido.salvar(true);
+
+        itemPedidoDAO.limparCarrinho();
+
+        Intent intent = new Intent(this, MainActivityUsuario.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        intent.putExtra("id", 1);
+        startActivity(intent);
 
     }
 
