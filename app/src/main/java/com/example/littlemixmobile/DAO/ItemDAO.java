@@ -2,12 +2,17 @@ package com.example.littlemixmobile.DAO;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import com.example.littlemixmobile.model.ImagemUpload;
 import com.example.littlemixmobile.model.ItemPedido;
 import com.example.littlemixmobile.model.Produto;
 import com.squareup.picasso.Picasso;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ItemDAO {
 
@@ -20,8 +25,9 @@ public class ItemDAO {
         read = dbHelper.getReadableDatabase();
     }
 
-    public long salvar(Produto produto){
+    public long salvar(Produto produto) {
         long idRetorno = 0;
+
         ContentValues values = new ContentValues();
         values.put("id_firebase", produto.getId());
         values.put("nome", produto.getTitulo());
@@ -35,16 +41,14 @@ public class ItemDAO {
 
         try {
             idRetorno = write.insert(DBHelper.TABELA_ITEM, null, values);
-
         }catch (Exception e){
-            Log.i("INFODB:", "Erro ao salvar o item." + e.getMessage());
+            Log.i("INFODB:", " Erro ao salvar o item. " + e.getMessage());
         }
 
         return idRetorno;
     }
 
     public boolean remover(ItemPedido itemPedido) {
-
         String where = "id=?";
         String[] args = {String.valueOf(itemPedido.getId())};
 
