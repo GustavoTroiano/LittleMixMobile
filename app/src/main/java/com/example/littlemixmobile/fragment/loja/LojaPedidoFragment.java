@@ -1,66 +1,110 @@
 package com.example.littlemixmobile.fragment.loja;
 
+
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
-import com.example.littlemixmobile.R;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link LojaPedidoFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
-public class LojaPedidoFragment extends Fragment {
+import com.example.littlemixmobile.adapter.LojaPedidosAdapter;
+import com.example.littlemixmobile.databinding.FragmentLojaPedidoBinding;
+import com.example.littlemixmobile.helper.FirebaseHelper;
+import com.example.littlemixmobile.model.Pedido;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.ValueEventListener;
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+public class LojaPedidoFragment extends Fragment implements LojaPedidosAdapter.OnClickListener {
 
-    public LojaPedidoFragment() {
-        // Required empty public constructor
-    }
+    private FragmentLojaPedidoBinding binding;
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment LojaPedidoFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static LojaPedidoFragment newInstance(String param1, String param2) {
-        LojaPedidoFragment fragment = new LojaPedidoFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-    }
+    private LojaPedidosAdapter lojaPedidosAdapter;
+    private final List<Pedido> pedidoList = new ArrayList<>();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_loja_pedido, container, false);
+        binding = FragmentLojaPedidoBinding.inflate(inflater, container, false);
+        return binding.getRoot();
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        configRv();
+
+        recuperaPedidos();
+    }
+
+    private void configRv() {
+        binding.rvPedidos.setLayoutManager(new LinearLayoutManager(requireContext()));
+        binding.rvPedidos.setHasFixedSize(true);
+        lojaPedidosAdapter = new LojaPedidosAdapter(pedidoList, requireContext(), this);
+        binding.rvPedidos.setAdapter(lojaPedidosAdapter);
+    }
+
+    private void recuperaPedidos() {
+        DatabaseReference pedidosRef = FirebaseHelper.getDatabaseReference()
+                .child("lojaPedidos");
+        pedidosRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    pedidoList.clear();
+                    for (DataSnapshot ds : snapshot.getChildren()) {
+                        Pedido pedido = ds.getValue(Pedido.class);
+                        pedidoList.add(pedido);
+                    }
+                    binding.textInfo.setText("");
+                } else {
+                    binding.textInfo.setText("Nenhum pedido recebido.");
+                }
+
+                binding.progressBar.setVisibility(View.GONE);
+                Collections.reverse(pedidoList);
+                lojaPedidosAdapter.notifyDataSetChanged();
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
+    }
+
+    @Override
+    public void onClick(Pedido pedido, String operacao) {
+        switch (operacao){
+            case "detalhes":
+                Toast.makeText(requireContext(), "Detalhes do pedido.", Toast.LENGTH_SHORT).show();
+                break;
+            case "status":
+                Toast.makeText(requireContext(), "Status do pedido.", Toast.LENGTH_SHORT).show();
+                break;
+            default:
+                Toast.makeText(requireContext(), "Operação inválida, favor verifique.", Toast.LENGTH_SHORT).show();
+                break;
+        }
     }
 }
