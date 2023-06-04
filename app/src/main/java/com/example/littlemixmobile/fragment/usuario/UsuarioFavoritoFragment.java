@@ -1,5 +1,6 @@
 package com.example.littlemixmobile.fragment.usuario;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -14,6 +15,7 @@ import android.view.ViewGroup;
 import com.example.littlemixmobile.R;
 import com.example.littlemixmobile.adapter.LojaProdutoAdapter;
 
+import com.example.littlemixmobile.autenticacao.LoginActivity;
 import com.example.littlemixmobile.databinding.FragmentUsuarioFavoritoBinding;
 import com.example.littlemixmobile.helper.FirebaseHelper;
 import com.example.littlemixmobile.model.Categoria;
@@ -50,11 +52,29 @@ public class UsuarioFavoritoFragment extends Fragment implements LojaProdutoAdap
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        configRvProdutos();
+        configClicks();
 
-        recuperaFavoritos();
+    }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (FirebaseHelper.getAutenticado()) {
+            binding.btnLogin.setVisibility(View.GONE);
+            configRvProdutos();
+            recuperaFavoritos();
+        }else {
+            binding.btnLogin.setVisibility(View.VISIBLE);
+            binding.progressBar.setVisibility(View.GONE);
+            binding.textInfo.setText("Você não está autenticado no app");
 
+        }
+    }
+
+    private void configClicks(){
+        binding.btnLogin.setOnClickListener(v -> {
+            startActivity(new Intent(requireContext(), LoginActivity.class));
+        });
     }
 
     private void configRvProdutos() {
@@ -132,7 +152,7 @@ public class UsuarioFavoritoFragment extends Fragment implements LojaProdutoAdap
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        favoritoRef.removeEventListener(eventListener);
+        if (eventListener != null) favoritoRef.removeEventListener(eventListener);
         binding = null;
     }
 
