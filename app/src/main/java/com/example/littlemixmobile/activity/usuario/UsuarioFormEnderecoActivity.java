@@ -1,5 +1,6 @@
 package com.example.littlemixmobile.activity.usuario;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
@@ -7,18 +8,27 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Toast;
 
 import com.example.littlemixmobile.R;
+import com.example.littlemixmobile.api.CEPservices;
 import com.example.littlemixmobile.databinding.ActivityUsuarioFormEnderecoBinding;
 import com.example.littlemixmobile.model.Endereco;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+
 public class UsuarioFormEnderecoActivity extends AppCompatActivity {
 
-    private Endereco endereco;
+    private ActivityUsuarioFormEnderecoBinding binding;
 
+    private Endereco endereco;
     private boolean novoEndereco = true;
 
-    private ActivityUsuarioFormEnderecoBinding binding;
+    private Retrofit retrofit;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,18 +42,27 @@ public class UsuarioFormEnderecoActivity extends AppCompatActivity {
 
         getExtra();
 
+        iniciaRetrofit();
     }
 
-    private  void getExtra(){
+    private void getExtra() {
         Bundle bundle = getIntent().getExtras();
-        if (bundle != null){
-            endereco = (Endereco) bundle.getSerializable("enderecoSelecionadado");
+        if (bundle != null) {
+            endereco = (Endereco) bundle.getSerializable("enderecoSelecionado");
             configDados();
             novoEndereco = false;
         }
     }
 
-    private void configDados(){
+    private void iniciaRetrofit() {
+        retrofit = new Retrofit
+                .Builder()
+                .baseUrl("https://viacep.com.br/ws/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+    }
+
+    private void configDados() {
         binding.edtNomeEndereco.setText(endereco.getNomeEndereco());
         binding.edtCEP.setText(endereco.getCep());
         binding.edtUF.setText(endereco.getUf());
@@ -53,14 +72,78 @@ public class UsuarioFormEnderecoActivity extends AppCompatActivity {
         binding.edtMunicipio.setText(endereco.getLocalidade());
     }
 
-    private void configClicks(){
+    private void configClicks() {
         binding.include.include.ibVoltar.setOnClickListener(v -> finish());
         binding.include.btnSalvar.setOnClickListener(v -> validaDados());
+        binding.btnBuscar.setOnClickListener(v -> buscarCEP());
     }
 
-    private void validaDados(){
+    private void buscarCEP() {
+
+        String cep = binding.edtCEP.getMasked().replace("-", "").replaceAll("_", "");
+
+        if (cep.length() == 8) {
+
+            ocultaTeclado();
+
+            binding.progressBar.setVisibility(View.VISIBLE);
+
+            CEPservices cepService = retrofit.create(CEPservices.class);
+            Call<Endereco> call = cepService.recuperaCEP(cep);
+
+            call.enqueue(new Callback<Endereco>() {
+                @Override
+                public void onResponse(@NonNull Call<Endereco> call, @NonNull Response<Endereco> response) {
+                    if(response.isSuccessful()){
+
+                        String nomeEndereco = "";
+                        String numEndereco = "";
+                        String idEndereco = "";
+                        if(!novoEndereco){
+                            nomeEndereco = endereco.getNomeEndereco();
+                            numEndereco = endereco.getNumero();
+                            idEndereco = endereco.getId();
+                        }
+
+                        endereco = response.body();
+
+                        if(endereco != null){
+                            if(endereco.getLocalidade() != null){
+
+                                if(!novoEndereco) endereco.setId(idEndereco);
+                                endereco.setNomeEndereco(nomeEndereco);
+                                endereco.setNumero(numEndereco);
+
+                                configDados();
+
+                            }else {
+                                Toast.makeText(getBaseContext(), "Não foi possível recuperar o endereço.", Toast.LENGTH_SHORT).show();
+                            }
+                        }else {
+                            Toast.makeText(getBaseContext(), "Não foi possível recuperar o endereço.", Toast.LENGTH_SHORT).show();
+                        }
+
+                        binding.progressBar.setVisibility(View.GONE);
+
+                    }
+                }
+
+                @Override
+                public void onFailure(@NonNull Call<Endereco> call, @NonNull Throwable t) {
+                    Toast.makeText(getBaseContext(), "Não foi possível recuperar o endereço.", Toast.LENGTH_SHORT).show();
+                    binding.progressBar.setVisibility(View.GONE);
+                }
+            });
+
+        } else {
+            Toast.makeText(this, "Formato do CEP inválido.", Toast.LENGTH_SHORT).show();
+        }
+
+    }
+
+    private void validaDados() {
         String nomeEndereco = binding.edtNomeEndereco.getText().toString().trim();
-        String cep = binding.edtCEP.getText().toString().trim();
+        String cep = binding.edtCEP.getMasked();
         String uf = binding.edtUF.getText().toString().trim();
         String numero = binding.edtNumEndereco.getText().toString().trim();
         String logradouro = binding.edtLogradouro.getText().toString().trim();
@@ -90,54 +173,48 @@ public class UsuarioFormEnderecoActivity extends AppCompatActivity {
                                 endereco.salvar();
                                 binding.progressBar.setVisibility(View.GONE);
 
-                                if (novoEndereco){
+                                if (novoEndereco) {
                                     Intent intent = new Intent();
                                     intent.putExtra("enderecoCadastrado", endereco);
                                     setResult(RESULT_OK, intent);
                                     finish();
                                 }
 
-
-                            }else {
+                            } else {
                                 binding.edtMunicipio.requestFocus();
-                                binding.edtMunicipio.setError("Informação obrigatória");
+                                binding.edtMunicipio.setError("Informação obrigatória.");
                             }
-
-                        }else {
+                        } else {
                             binding.edtBairro.requestFocus();
-                            binding.edtBairro.setError("Informação obrigatória");
+                            binding.edtBairro.setError("Informação obrigatória.");
                         }
-
-                    }else {
+                    } else {
                         binding.edtLogradouro.requestFocus();
-                        binding.edtLogradouro.setError("Informação obrigatória");
+                        binding.edtLogradouro.setError("Informação obrigatória.");
                     }
-
-                }else {
+                } else {
                     binding.edtUF.requestFocus();
-                    binding.edtUF.setError("Informação obrigatória");
+                    binding.edtUF.setError("Informação obrigatória.");
                 }
-
-            }else {
+            } else {
                 binding.edtCEP.requestFocus();
-                binding.edtCEP.setError("Informação obrigatória");
+                binding.edtCEP.setError("Informação obrigatória.");
             }
-
-        }else {
+        } else {
             binding.edtNomeEndereco.requestFocus();
-            binding.edtNomeEndereco.setError("Informação obrigatória");
+            binding.edtNomeEndereco.setError("Informação obrigatória.");
         }
 
     }
 
-    // Oculta o teclado do dispositivo
+    // Oculta o teclado do dispotivo
     private void ocultaTeclado() {
         InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
         inputMethodManager.hideSoftInputFromWindow(binding.edtNomeEndereco.getWindowToken(),
                 InputMethodManager.HIDE_NOT_ALWAYS);
     }
 
-    private void iniciaComponentes(){
+    private void iniciaComponentes() {
         binding.include.textTitulo.setText("Novo endereço");
     }
 

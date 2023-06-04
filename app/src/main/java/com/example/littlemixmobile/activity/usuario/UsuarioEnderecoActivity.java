@@ -44,9 +44,6 @@ public class UsuarioEnderecoActivity extends AppCompatActivity implements Endere
         binding = ActivityUsuarioEnderecoBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        binding.include.textTitulo.setText("Meus endereços");
-        binding.include.include.ibVoltar.setOnClickListener(v -> finish());
-
         iniciaComponentes();
 
         configClicks();
@@ -62,7 +59,7 @@ public class UsuarioEnderecoActivity extends AppCompatActivity implements Endere
         recuperaEndereco();
     }
 
-    private  void configRv(){
+    private void configRv() {
         binding.rvEnderecos.setLayoutManager(new LinearLayoutManager(this));
         binding.rvEnderecos.setHasFixedSize(true);
         enderecoAdapter = new EnderecoAdapter(enderecoList, this, this);
@@ -93,15 +90,14 @@ public class UsuarioEnderecoActivity extends AppCompatActivity implements Endere
             enderecoAdapter.notifyDataSetChanged();
         });
 
-        deleteBinding.textTitulo.setText("Deseja remover esta categoria?");
+        deleteBinding.textTitulo.setText("Deseja remover este endereço ?");
 
-        deleteBinding.btnSim.setOnClickListener(view -> {
+        deleteBinding.btnSim.setOnClickListener(v -> {
             enderecoList.remove(endereco);
 
-            if (enderecoList.isEmpty()){
-                binding.textInfo.setText("Nenhuma endereco cadastratado.");
-
-            }else{
+            if(enderecoList.isEmpty()){
+                binding.textInfo.setText("Nenhum endereço cadastrado.");
+            }else {
                 binding.textInfo.setText("");
             }
 
@@ -119,22 +115,22 @@ public class UsuarioEnderecoActivity extends AppCompatActivity implements Endere
 
     }
 
-    private void recuperaEndereco(){
+    private void recuperaEndereco() {
         DatabaseReference enderecoRef = FirebaseHelper.getDatabaseReference()
                 .child("enderecos")
                 .child(FirebaseHelper.getIdFirebase());
         enderecoRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()){
+                if (snapshot.exists()) {
                     enderecoList.clear();
-                    for (DataSnapshot ds : snapshot.getChildren()){
+                    for (DataSnapshot ds : snapshot.getChildren()) {
                         Endereco endereco = ds.getValue(Endereco.class);
                         enderecoList.add(endereco);
                     }
                     binding.textInfo.setText("");
-                }else {
-                    binding.textInfo.setText("Nenhum endereço cadastrado");
+                } else {
+                    binding.textInfo.setText("Nenhum endereço cadastrado.");
                 }
 
                 binding.progressBar.setVisibility(View.GONE);
@@ -150,12 +146,13 @@ public class UsuarioEnderecoActivity extends AppCompatActivity implements Endere
         });
     }
 
-    private void configClicks(){
+    private void configClicks() {
         binding.include.btnAdd.setOnClickListener(v ->
-                startActivity(new Intent(this, UsuarioFormEnderecoActivity.class)));
+                startActivity(new Intent(this, UsuarioFormEnderecoActivity.class))
+        );
     }
 
-    private void iniciaComponentes(){
+    private void iniciaComponentes() {
         binding.include.textTitulo.setText("Meus endereços");
         binding.include.include.ibVoltar.setOnClickListener(v -> finish());
     }
@@ -163,7 +160,7 @@ public class UsuarioEnderecoActivity extends AppCompatActivity implements Endere
     @Override
     public void onClick(Endereco endereco) {
         Intent intent = new Intent(this, UsuarioFormEnderecoActivity.class);
-        intent.putExtra("enderecoSelecionadado", endereco);
+        intent.putExtra("enderecoSelecionado", endereco);
         startActivity(intent);
     }
 }
