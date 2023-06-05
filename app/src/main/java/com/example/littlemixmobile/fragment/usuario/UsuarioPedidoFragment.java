@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 
+import com.example.littlemixmobile.activity.app.DetalhesPedidoActivity;
 import com.example.littlemixmobile.adapter.UsuarioPedidosAdapter;
 import com.example.littlemixmobile.autenticacao.LoginActivity;
 import com.example.littlemixmobile.databinding.FragmentUsuarioPedidoBinding;
@@ -119,6 +120,8 @@ public class UsuarioPedidoFragment extends Fragment implements UsuarioPedidosAda
 
     @Override
     public void onClick(Pedido pedido) {
-        Toast.makeText(requireContext(), pedido.getPagamento(), Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(requireContext(), DetalhesPedidoActivity.class);
+        intent.putExtra("pedidoSelecionado", pedido);
+        startActivity(intent);
     }
 }

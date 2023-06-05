@@ -1,6 +1,7 @@
 package com.example.littlemixmobile.fragment.loja;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -14,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 
+import com.example.littlemixmobile.activity.app.DetalhesPedidoActivity;
 import com.example.littlemixmobile.adapter.LojaPedidosAdapter;
 import com.example.littlemixmobile.databinding.FragmentLojaPedidoBinding;
 import com.example.littlemixmobile.helper.FirebaseHelper;
@@ -97,7 +99,9 @@ public class LojaPedidoFragment extends Fragment implements LojaPedidosAdapter.O
     public void onClick(Pedido pedido, String operacao) {
         switch (operacao){
             case "detalhes":
-                Toast.makeText(requireContext(), "Detalhes do pedido.", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(requireContext(), DetalhesPedidoActivity.class);
+                intent.putExtra("pedidoSelecionado", pedido);
+                startActivity(intent);
                 break;
             case "status":
                 Toast.makeText(requireContext(), "Status do pedido.", Toast.LENGTH_SHORT).show();

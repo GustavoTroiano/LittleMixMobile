@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import com.example.littlemixmobile.R;
 import com.example.littlemixmobile.activity.usuario.MainActivityUsuario;
 import com.example.littlemixmobile.activity.usuario.UsuarioEnderecoActivity;
+import com.example.littlemixmobile.activity.usuario.UsuarioPerfilActivity;
 import com.example.littlemixmobile.autenticacao.CadastroActivity;
 import com.example.littlemixmobile.autenticacao.LoginActivity;
 import com.example.littlemixmobile.databinding.FragmentUsuarioPerfilBinding;
@@ -52,7 +53,7 @@ public class UsuarioPerfilFragment extends Fragment {
         binding.btnCadastrar.setOnClickListener(v -> {
             startActivity(new Intent(requireContext(), CadastroActivity.class));
         });
-        binding.btnMeusDados.setOnClickListener(v -> startActivity(LoginActivity.class));
+        binding.btnMeusDados.setOnClickListener(v -> startActivity(UsuarioPerfilActivity.class));
         binding.btnEnderecos.setOnClickListener(v -> startActivity(UsuarioEnderecoActivity.class));
         binding.btnDeslogar.setOnClickListener(v -> {
             FirebaseHelper.getAuth().signOut();
