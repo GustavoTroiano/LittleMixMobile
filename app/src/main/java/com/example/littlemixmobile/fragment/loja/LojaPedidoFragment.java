@@ -6,18 +6,23 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 
 
+import com.example.littlemixmobile.R;
 import com.example.littlemixmobile.activity.app.DetalhesPedidoActivity;
 import com.example.littlemixmobile.adapter.LojaPedidosAdapter;
 import com.example.littlemixmobile.databinding.FragmentLojaPedidoBinding;
+import com.example.littlemixmobile.databinding.LayoutDialogStatusPedidoBinding;
 import com.example.littlemixmobile.helper.FirebaseHelper;
 import com.example.littlemixmobile.model.Pedido;
 import com.google.firebase.database.DataSnapshot;
@@ -35,6 +40,8 @@ public class LojaPedidoFragment extends Fragment implements LojaPedidosAdapter.O
 
     private LojaPedidosAdapter lojaPedidosAdapter;
     private final List<Pedido> pedidoList = new ArrayList<>();
+
+    private AlertDialog dialog;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -89,6 +96,54 @@ public class LojaPedidoFragment extends Fragment implements LojaPedidosAdapter.O
         });
     }
 
+    private void showDialogStatus(Pedido pedido) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(
+                getContext(), R.style.CustomAlertDialog2);
+
+        LayoutDialogStatusPedidoBinding statusBinding = LayoutDialogStatusPedidoBinding
+                .inflate(LayoutInflater.from(getContext()));
+
+        RadioGroup rgStatus = statusBinding.rgStatus;
+        RadioButton rbPendente = statusBinding.rbPendente;
+        RadioButton rbAprovado = statusBinding.rbAprovado;
+        RadioButton rbCancelado = statusBinding.rbCancelado;
+
+        switch (pedido.getStatusPedido()){
+            case PENDENTE:
+                rgStatus.check(R.id.rbPendente);
+                rbAprovado.setEnabled(true);
+                rbCancelado.setEnabled(true);
+                break;
+            case APROVADO:
+                rgStatus.check(R.id.rbAprovado);
+                rbCancelado.setEnabled(false);
+                rbPendente.setEnabled(false);
+                break;
+            default:
+                rgStatus.check(R.id.rbCancelado);
+                rbPendente.setEnabled(false);
+                rbAprovado.setEnabled(false);
+                break;
+        }
+
+        statusBinding.btnFechar.setOnClickListener(v -> {
+            dialog.dismiss();
+        });
+
+        statusBinding.btnConfirmar.setOnClickListener(v -> {
+            dialog.dismiss();
+        });
+
+        builder.setView(statusBinding.getRoot());
+
+        dialog = builder.create();
+
+        if (!requireActivity().isFinishing()) {
+            dialog.show();
+        }
+
+    }
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
@@ -97,14 +152,14 @@ public class LojaPedidoFragment extends Fragment implements LojaPedidosAdapter.O
 
     @Override
     public void onClick(Pedido pedido, String operacao) {
-        switch (operacao){
+        switch (operacao) {
             case "detalhes":
                 Intent intent = new Intent(requireContext(), DetalhesPedidoActivity.class);
                 intent.putExtra("pedidoSelecionado", pedido);
                 startActivity(intent);
                 break;
             case "status":
-                Toast.makeText(requireContext(), "Status do pedido.", Toast.LENGTH_SHORT).show();
+                showDialogStatus(pedido);
                 break;
             default:
                 Toast.makeText(requireContext(), "Operação inválida, favor verifique.", Toast.LENGTH_SHORT).show();

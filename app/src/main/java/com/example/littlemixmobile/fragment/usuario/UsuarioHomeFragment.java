@@ -1,10 +1,12 @@
 package com.example.littlemixmobile.fragment.usuario;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -12,6 +14,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.littlemixmobile.R;
@@ -31,6 +35,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 
 public class UsuarioHomeFragment extends Fragment implements CategoriaAdapter.onClick, LojaProdutoAdapter.OnClickLister, LojaProdutoAdapter.OnClickFavorito {
@@ -39,10 +44,13 @@ public class UsuarioHomeFragment extends Fragment implements CategoriaAdapter.on
 
     private final List<Categoria> categoriaList = new ArrayList<>();
     private final List<Produto> produtoList = new ArrayList<>();
+    private final List<Produto> filtraProdutoCategoriaList = new ArrayList<>();
     private final List<String> idsFavoritos = new ArrayList<>();
 
     private CategoriaAdapter categoriaAdapter;
     private LojaProdutoAdapter lojaProdutoAdapter;
+
+    private  Categoria categoriaSelecionada;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -57,14 +65,35 @@ public class UsuarioHomeFragment extends Fragment implements CategoriaAdapter.on
 
         configRvCategorias();
 
+        configSearchView();
+
+        recuperaDados();
 
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
+    private void configSearchView(){
+        binding.searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String pesquisa) {
+                ocultaTeclado();
+                filtraProdutoNome(pesquisa);
+                return true;
+            }
 
-        recuperaDados();
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
+
+
+        binding.searchView.findViewById(androidx.appcompat.R.id.search_close_btn).setOnClickListener(v ->{
+            EditText edtSearchView = binding.searchView.findViewById(androidx.appcompat.R.id.search_src_text);
+            edtSearchView.clearFocus();
+            edtSearchView.setText("");
+            ocultaTeclado();
+            filtraProdutoCategoria();
+        });
     }
 
     private void recuperaDados() {
@@ -118,7 +147,7 @@ public class UsuarioHomeFragment extends Fragment implements CategoriaAdapter.on
     private void recuperaProdutos() {
         DatabaseReference produtoRef = FirebaseHelper.getDatabaseReference()
                 .child("produtos");
-        produtoRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        produtoRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
 
@@ -170,20 +199,45 @@ public class UsuarioHomeFragment extends Fragment implements CategoriaAdapter.on
         }
     }
 
-    private void filtraProdutoCategorias(Categoria categoria){
-       if (!categoria.isTodas()){
-           List<Produto> filtraProdutoCategoriasList = new ArrayList<>();
-
+    private void filtraProdutoCategoria(){
+       if (!categoriaSelecionada.isTodas()){
            for (Produto produto : produtoList){
-               if (produto.getIdsCategorias().contains(categoria.getId())){
-                   filtraProdutoCategoriasList.add(produto);
+               if (produto.getIdsCategorias().contains(categoriaSelecionada.getId())){
+                   if (!filtraProdutoCategoriaList.contains(produto)){
+                       filtraProdutoCategoriaList.add(produto);
+                   }
                }
            }
 
-           configRvProdutos(filtraProdutoCategoriasList);
+           configRvProdutos(filtraProdutoCategoriaList);
        }else {
+           filtraProdutoCategoriaList.clear();
            configRvProdutos(produtoList);
        }
+    }
+
+
+    private void filtraProdutoNome(String pesquisa) {
+        List<Produto> filtraProdutoNomeList = new ArrayList<>();
+
+        if (!filtraProdutoCategoriaList.isEmpty()) {
+            for (Produto produto : filtraProdutoCategoriaList) {
+                if (produto.getTitulo().toUpperCase(Locale.ROOT).contains(pesquisa.toUpperCase(Locale.ROOT))) {
+                    filtraProdutoNomeList.add(produto);
+                }
+            }
+        } else {
+            for (Produto produto : produtoList) {
+                if (produto.getTitulo().toUpperCase(Locale.ROOT).contains(pesquisa.toUpperCase(Locale.ROOT))) {
+                    filtraProdutoNomeList.add(produto);
+                }
+            }
+
+
+        }
+
+        configRvProdutos(filtraProdutoNomeList);
+
     }
 
     private void listEmpty(List<Produto> produtoList) {
@@ -194,9 +248,17 @@ public class UsuarioHomeFragment extends Fragment implements CategoriaAdapter.on
         }
     }
 
+
+    private void ocultaTeclado() {
+        InputMethodManager inputMethodManager = (InputMethodManager) requireActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(binding.searchView.getWindowToken(),
+                InputMethodManager.HIDE_NOT_ALWAYS);
+    }
+
     @Override
     public void onClickListener(Categoria categoria) {
-        filtraProdutoCategorias(categoria);
+        this.categoriaSelecionada = categoria;
+        filtraProdutoCategoria();
     }
 
     @Override
