@@ -277,12 +277,5 @@ public class UsuarioHomeFragment extends Fragment implements CategoriaAdapter.on
         }
         Favorito.salvar(idsFavoritos);
     }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
-    }
-
 }
 

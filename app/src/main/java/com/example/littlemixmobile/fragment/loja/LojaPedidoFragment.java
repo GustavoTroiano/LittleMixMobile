@@ -25,6 +25,7 @@ import com.example.littlemixmobile.databinding.FragmentLojaPedidoBinding;
 import com.example.littlemixmobile.databinding.LayoutDialogStatusPedidoBinding;
 import com.example.littlemixmobile.helper.FirebaseHelper;
 import com.example.littlemixmobile.model.Pedido;
+import com.example.littlemixmobile.model.StatusPedido;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -108,7 +109,7 @@ public class LojaPedidoFragment extends Fragment implements LojaPedidosAdapter.O
         RadioButton rbAprovado = statusBinding.rbAprovado;
         RadioButton rbCancelado = statusBinding.rbCancelado;
 
-        switch (pedido.getStatusPedido()){
+        switch (pedido.getStatusPedido()) {
             case PENDENTE:
                 rgStatus.check(R.id.rbPendente);
                 rbAprovado.setEnabled(true);
@@ -130,7 +131,18 @@ public class LojaPedidoFragment extends Fragment implements LojaPedidosAdapter.O
             dialog.dismiss();
         });
 
+        rgStatus.setOnCheckedChangeListener((group, checkedId) -> {
+            if (checkedId == R.id.rbPendente) {
+                pedido.setStatusPedido(StatusPedido.PENDENTE);
+            } else if (checkedId == R.id.rbAprovado) {
+                pedido.setStatusPedido(StatusPedido.APROVADO);
+            } else {
+                pedido.setStatusPedido(StatusPedido.CANCELADO);
+            }
+        });
+
         statusBinding.btnConfirmar.setOnClickListener(v -> {
+            pedido.salvar(false);
             dialog.dismiss();
         });
 
@@ -142,12 +154,6 @@ public class LojaPedidoFragment extends Fragment implements LojaPedidosAdapter.O
             dialog.show();
         }
 
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
     }
 
     @Override

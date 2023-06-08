@@ -57,7 +57,11 @@ public class DetalhesProdutoActivity extends AppCompatActivity implements LojaPr
 
     private AlertDialog dialog;
 
-
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (dialog != null) dialog.dismiss();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -228,9 +232,6 @@ public class DetalhesProdutoActivity extends AppCompatActivity implements LojaPr
             intent.putExtra("id", 2);
             startActivity(intent);
             finish();
-
-
-            dialog.dismiss();
         });
 
 

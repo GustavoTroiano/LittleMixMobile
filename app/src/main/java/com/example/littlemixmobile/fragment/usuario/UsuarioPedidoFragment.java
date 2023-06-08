@@ -113,12 +113,6 @@ public class UsuarioPedidoFragment extends Fragment implements UsuarioPedidosAda
     }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
-    }
-
-    @Override
     public void onClick(Pedido pedido) {
         Intent intent = new Intent(requireContext(), DetalhesPedidoActivity.class);
         intent.putExtra("pedidoSelecionado", pedido);
