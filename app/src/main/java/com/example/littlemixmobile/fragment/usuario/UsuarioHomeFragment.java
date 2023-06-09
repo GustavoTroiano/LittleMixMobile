@@ -1,66 +1,281 @@
 package com.example.littlemixmobile.fragment.usuario;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
+import android.widget.Toast;
 
 import com.example.littlemixmobile.R;
+import com.example.littlemixmobile.activity.usuario.DetalhesProdutoActivity;
+import com.example.littlemixmobile.adapter.CategoriaAdapter;
+import com.example.littlemixmobile.adapter.LojaProdutoAdapter;
+import com.example.littlemixmobile.databinding.FragmentUsuarioHomeBinding;
+import com.example.littlemixmobile.helper.FirebaseHelper;
+import com.example.littlemixmobile.model.Categoria;
+import com.example.littlemixmobile.model.Favorito;
+import com.example.littlemixmobile.model.Produto;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.ValueEventListener;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link UsuarioHomeFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
-public class UsuarioHomeFragment extends Fragment {
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+public class UsuarioHomeFragment extends Fragment implements CategoriaAdapter.onClick, LojaProdutoAdapter.OnClickLister, LojaProdutoAdapter.OnClickFavorito {
 
-    public UsuarioHomeFragment() {
-        // Required empty public constructor
-    }
+    private FragmentUsuarioHomeBinding binding;
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment UsuarioHomeFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static UsuarioHomeFragment newInstance(String param1, String param2) {
-        UsuarioHomeFragment fragment = new UsuarioHomeFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
+    private final List<Categoria> categoriaList = new ArrayList<>();
+    private final List<Produto> produtoList = new ArrayList<>();
+    private final List<Produto> filtraProdutoCategoriaList = new ArrayList<>();
+    private final List<String> idsFavoritos = new ArrayList<>();
+
+    private CategoriaAdapter categoriaAdapter;
+    private LojaProdutoAdapter lojaProdutoAdapter;
+
+    private  Categoria categoriaSelecionada;
+
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        binding = FragmentUsuarioHomeBinding.inflate(inflater, container, false);
+        return binding.getRoot();
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        configRvCategorias();
+
+        configSearchView();
+
+        recuperaDados();
+
+    }
+
+    private void configSearchView(){
+        binding.searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String pesquisa) {
+                ocultaTeclado();
+                filtraProdutoNome(pesquisa);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
+
+
+        binding.searchView.findViewById(androidx.appcompat.R.id.search_close_btn).setOnClickListener(v ->{
+            EditText edtSearchView = binding.searchView.findViewById(androidx.appcompat.R.id.search_src_text);
+            edtSearchView.clearFocus();
+            edtSearchView.setText("");
+            ocultaTeclado();
+            filtraProdutoCategoria();
+        });
+    }
+
+    private void recuperaDados() {
+        recuperaCategorias();
+
+        recuperaProdutos();
+
+        recuperaFavoritos();
+    }
+
+    private void configRvCategorias() {
+        binding.rvCategorias.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
+        binding.rvCategorias.setHasFixedSize(true);
+        categoriaAdapter = new CategoriaAdapter(R.layout.item_categoria_horzontal, true, categoriaList, this);
+        binding.rvCategorias.setAdapter(categoriaAdapter);
+    }
+
+    private void configRvProdutos(List<Produto> produtoList) {
+        binding.rvProdutos.setLayoutManager(new GridLayoutManager(requireContext(), 2));
+        binding.rvProdutos.setHasFixedSize(true);
+        lojaProdutoAdapter = new LojaProdutoAdapter(R.layout.item_produto_adapter, produtoList, requireContext(), true, idsFavoritos, this, this);
+        binding.rvProdutos.setAdapter(lojaProdutoAdapter);
+    }
+
+    private void recuperaCategorias() {
+        DatabaseReference categoriaRef = FirebaseHelper.getDatabaseReference()
+                .child("categorias");
+        categoriaRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                categoriaList.clear();
+
+                for (DataSnapshot ds : snapshot.getChildren()) {
+                    Categoria categoria = ds.getValue(Categoria.class);
+                    categoriaList.add(categoria);
+                }
+
+                Collections.reverse(categoriaList);
+                categoriaAdapter.notifyDataSetChanged();
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    private void recuperaProdutos() {
+        DatabaseReference produtoRef = FirebaseHelper.getDatabaseReference()
+                .child("produtos");
+        produtoRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                produtoList.clear();
+
+                for (DataSnapshot ds : snapshot.getChildren()) {
+                    Produto produto = ds.getValue(Produto.class);
+                    produtoList.add(produto);
+                }
+
+                listEmpty(produtoList);
+
+                binding.progressBar.setVisibility(View.GONE);
+                Collections.reverse(produtoList);
+
+                configRvProdutos(produtoList);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    private void recuperaFavoritos() {
+        if (FirebaseHelper.getAutenticado()) {
+            DatabaseReference favoritoRef = FirebaseHelper.getDatabaseReference()
+                    .child("favoritos")
+                    .child(FirebaseHelper.getIdFirebase());
+            favoritoRef.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                    idsFavoritos.clear();
+
+                    for (DataSnapshot ds : snapshot.getChildren()) {
+                        String idFavorito = ds.getValue(String.class);
+                        idsFavoritos.add(idFavorito);
+                    }
+
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                }
+            });
         }
     }
 
+    private void filtraProdutoCategoria(){
+       if (!categoriaSelecionada.isTodas()){
+           for (Produto produto : produtoList){
+               if (produto.getIdsCategorias().contains(categoriaSelecionada.getId())){
+                   if (!filtraProdutoCategoriaList.contains(produto)){
+                       filtraProdutoCategoriaList.add(produto);
+                   }
+               }
+           }
+
+           configRvProdutos(filtraProdutoCategoriaList);
+       }else {
+           filtraProdutoCategoriaList.clear();
+           configRvProdutos(produtoList);
+       }
+    }
+
+
+    private void filtraProdutoNome(String pesquisa) {
+        List<Produto> filtraProdutoNomeList = new ArrayList<>();
+
+        if (!filtraProdutoCategoriaList.isEmpty()) {
+            for (Produto produto : filtraProdutoCategoriaList) {
+                if (produto.getTitulo().toUpperCase(Locale.ROOT).contains(pesquisa.toUpperCase(Locale.ROOT))) {
+                    filtraProdutoNomeList.add(produto);
+                }
+            }
+        } else {
+            for (Produto produto : produtoList) {
+                if (produto.getTitulo().toUpperCase(Locale.ROOT).contains(pesquisa.toUpperCase(Locale.ROOT))) {
+                    filtraProdutoNomeList.add(produto);
+                }
+            }
+
+
+        }
+
+        configRvProdutos(filtraProdutoNomeList);
+
+    }
+
+    private void listEmpty(List<Produto> produtoList) {
+        if (produtoList.isEmpty()) {
+            binding.textInfo.setText("Nenhum produto localizado.");
+        } else {
+            binding.textInfo.setText("");
+        }
+    }
+
+
+    private void ocultaTeclado() {
+        InputMethodManager inputMethodManager = (InputMethodManager) requireActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(binding.searchView.getWindowToken(),
+                InputMethodManager.HIDE_NOT_ALWAYS);
+    }
+
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_usuario_home, container, false);
+    public void onClickListener(Categoria categoria) {
+        this.categoriaSelecionada = categoria;
+        filtraProdutoCategoria();
+    }
+
+    @Override
+    public void onClick(Produto produto) {
+        Intent intent = new Intent(requireContext(), DetalhesProdutoActivity.class);
+        intent.putExtra("produtoSelecionado", produto);
+        startActivity(intent);
+    }
+
+    @Override
+    public void onClickFavorito(Produto produto) {
+        if (!idsFavoritos.contains(produto.getId())) {
+            idsFavoritos.add(produto.getId());
+        } else {
+            idsFavoritos.remove(produto.getId());
+        }
+        Favorito.salvar(idsFavoritos);
     }
 }
+

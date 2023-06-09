@@ -6,10 +6,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import com.example.littlemixmobile.R;
@@ -30,7 +32,7 @@ public class LoginActivity extends AppCompatActivity {
     private final ActivityResultLauncher<Intent> resultLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
-                if (result.getResultCode() == RESULT_OK){
+                if (result.getResultCode() == RESULT_OK) {
                     String email = result.getData().getStringExtra("email");
                     binding.edtEmail.setText(email);
                 }
@@ -44,38 +46,39 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         configClicks();
-
     }
 
-    public void validaDados(View view){
+    public void validaDados(View view) {
         String email = binding.edtEmail.getText().toString().trim();
         String senha = binding.edtSenha.getText().toString().trim();
 
-        if(!email.isEmpty()){
-            if(!senha.isEmpty()){
+        if (!email.isEmpty()) {
+            if (!senha.isEmpty()) {
+
+                ocultaTeclado();
+
                 binding.progressbar.setVisibility(View.VISIBLE);
 
                 login(email, senha);
 
-            }else  {
+            } else {
                 binding.edtSenha.requestFocus();
-                binding.edtSenha.setError("Informe uma senha");
+                binding.edtSenha.setError("Informe uma senha.");
             }
-        }else  {
+        } else {
             binding.edtEmail.requestFocus();
-            binding.edtEmail.setError("Informe seu e-mail");
+            binding.edtEmail.setError("Informe seu email.");
         }
 
     }
 
-    private void login(String email, String senha){
+    private void login(String email, String senha) {
         FirebaseHelper.getAuth().signInWithEmailAndPassword(
                 email, senha
-        ).addOnCompleteListener(task ->{
-            if (task.isSuccessful()){
+        ).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
                 recuperaUsuario(task.getResult().getUser().getUid());
-                finish();
-            }else {
+            } else {
                 binding.progressbar.setVisibility(View.GONE);
                 Toast.makeText(this, FirebaseHelper.validaErros(task.getException().getMessage()), Toast.LENGTH_SHORT).show();
             }
@@ -89,9 +92,9 @@ public class LoginActivity extends AppCompatActivity {
         usuarioRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()){ // Usuario
-                    startActivity(new Intent(getBaseContext(), MainActivityUsuario.class));
-                }else { // Loja
+                if(snapshot.exists()){ // Usuário
+                    setResult(RESULT_OK);
+                }else {
                     startActivity(new Intent(getBaseContext(), MainActivityEmpresa.class));
                 }
                 finish();
@@ -104,16 +107,22 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    private void configClicks(){
-
+    private void configClicks() {
         binding.include.ibVoltar.setOnClickListener(view -> finish());
 
         binding.btnRecuperaSenha.setOnClickListener(view ->
                 startActivity(new Intent(this, RecuperaContaActivity.class)));
 
-        binding.btnCadastro.setOnClickListener(view ->{
+        binding.btnCadastro.setOnClickListener(view -> {
             Intent intent = new Intent(this, CadastroActivity.class);
             resultLauncher.launch(intent);
         });
+    }
+
+    // Oculta o teclado do dispotivo
+    private void ocultaTeclado() {
+        InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(binding.edtEmail.getWindowToken(),
+                InputMethodManager.HIDE_NOT_ALWAYS);
     }
 }

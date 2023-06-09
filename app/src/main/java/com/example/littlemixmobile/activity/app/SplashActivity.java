@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 
+import com.example.littlemixmobile.DAO.ItemPedidoDAO;
 import com.example.littlemixmobile.activity.loja.MainActivityEmpresa;
 import com.example.littlemixmobile.activity.usuario.MainActivityUsuario;
 import com.example.littlemixmobile.R;
@@ -22,9 +23,15 @@ public class SplashActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
-
         new Handler(getMainLooper()).postDelayed(this::verificaAcesso, 3000);
 
+        limparCarrinho();
+
+    }
+
+    private void limparCarrinho(){
+        ItemPedidoDAO itemPedidoDAO = new ItemPedidoDAO(this);
+        itemPedidoDAO.limparCarrinho();
     }
 
     private void verificaAcesso(){

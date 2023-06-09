@@ -9,6 +9,7 @@ public class Usuario {
     private String id;
     private String nome;
     private String email;
+    private String telefone;
     private String senha;
 
     public Usuario(){
@@ -44,6 +45,11 @@ public class Usuario {
     public void setEmail(String email) {
         this.email = email;
     }
+
+
+    public String getTelefone() { return telefone; }
+
+    public void setTelefone(String telefone) { this.telefone = telefone; }
 
     @Exclude
 

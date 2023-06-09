@@ -2,8 +2,12 @@ package com.example.littlemixmobile.activity.loja;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
 import android.app.Activity;
@@ -15,31 +19,52 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import com.example.littlemixmobile.R;
+import com.example.littlemixmobile.adapter.CategoriaDialogAdapter;
 import com.example.littlemixmobile.databinding.ActivityLojaFormProdutoBinding;
 import com.example.littlemixmobile.databinding.BottomSheetFormProdutoBinding;
+import com.example.littlemixmobile.databinding.DialogDeleteBinding;
+
+import com.example.littlemixmobile.databinding.DialogFormProdutoCategoriaBinding;
 import com.example.littlemixmobile.helper.FirebaseHelper;
+import com.example.littlemixmobile.model.Categoria;
 import com.example.littlemixmobile.model.ImagemUpload;
 import com.example.littlemixmobile.model.Produto;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.gun0912.tedpermission.PermissionListener;
 import com.gun0912.tedpermission.TedPermission;
+import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
-public class LojaFormProdutoActivity extends AppCompatActivity {
+public class LojaFormProdutoActivity extends AppCompatActivity implements CategoriaDialogAdapter.onClick {
+
+    private DialogFormProdutoCategoriaBinding categoriaBinding;
+
+    private List<String> idsCategoriasSelecionadas = new ArrayList<>();
+    private List<String> categoriaSelecionadaList = new ArrayList<>();
+    private List<Categoria> categoriaList = new ArrayList<>();
+
+
 
     private List<ImagemUpload> imagemUploadList = new ArrayList<>();
     private Produto produto;
@@ -51,57 +76,197 @@ public class LojaFormProdutoActivity extends AppCompatActivity {
 
     private String currentPhotoPath;
 
+    private AlertDialog dialog;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityLojaFormProdutoBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        getExtra();
+
         configClicks();
+
+        iniciaComponentes();
+
+        recuperaCategorias();
 
     }
 
+    private void getExtra() {
+        Bundle bundle = getIntent().getExtras();
+        if (bundle != null) {
+            produto = (Produto) bundle.getSerializable("produtoSelecionado");
+            configProduto();
+        }
+    }
+
+    private void configProduto(){
+
+        novoProduto = false;
+
+        idsCategoriasSelecionadas.addAll(produto.getIdsCategorias());
+
+        binding.imageFake0.setVisibility(View.GONE);
+        binding.imageFake1.setVisibility(View.GONE);
+        binding.imageFake2.setVisibility(View.GONE);
+
+        Picasso.get().load(produto.getUrlsImagens().get(0).getCaminhoImagem()).into(binding.imagemProduto0);
+        Picasso.get().load(produto.getUrlsImagens().get(1).getCaminhoImagem()).into(binding.imagemProduto1);
+        Picasso.get().load(produto.getUrlsImagens().get(2).getCaminhoImagem()).into(binding.imagemProduto2);
+
+        binding.edtTitulo.setText(produto.getTitulo());
+        binding.edtDescricao.setText(produto.getDescricao());
+        binding.edtValorAntigo.setText(String.valueOf(produto.getValorAntigo() * 10));
+        binding.edtValorAtual.setText(String.valueOf(produto.getValorAtual() * 10));
+    }
+
     private void configClicks() {
+        binding.include.include.ibVoltar.setOnClickListener(v -> finish());
         binding.imagemProduto0.setOnClickListener(v -> showBottomSheet(0));
         binding.imagemProduto1.setOnClickListener(v -> showBottomSheet(1));
         binding.imagemProduto2.setOnClickListener(v -> showBottomSheet(2));
     }
 
+    private void configRv(){
+        categoriaBinding.rvCategorias.setLayoutManager(new LinearLayoutManager(this));
+        categoriaBinding.rvCategorias.setHasFixedSize(true);
+        CategoriaDialogAdapter categoriaDialogAdapter = new CategoriaDialogAdapter(idsCategoriasSelecionadas, categoriaList, this);
+        categoriaBinding.rvCategorias.setAdapter(categoriaDialogAdapter);
+    }
+
+    public void showDialogCategorias(View view){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.CustomAlertDialog2);
+
+        categoriaBinding = DialogFormProdutoCategoriaBinding
+                .inflate(LayoutInflater.from(this));
+
+        categoriaBinding.btnFechar.setOnClickListener(v -> {
+            dialog.dismiss();
+        });
+
+        categoriaBinding.btnSalvar.setOnClickListener(v -> {
+            dialog.dismiss();
+        });
+
+        if (categoriaList.isEmpty()){
+            categoriaBinding.textInfo.setText("Nenhuma categoria cadastratada");
+
+        }else{
+            categoriaBinding.textInfo.setText("");
+        }
+
+        categoriaBinding.progressBar.setVisibility(View.GONE);
+
+        configRv();
+
+        builder.setView(categoriaBinding.getRoot());
+
+        dialog = builder.create();
+        dialog.show();
+    }
+
+    private void recuperaCategorias(){
+        DatabaseReference categoriaRef = FirebaseHelper.getDatabaseReference()
+                .child("categorias");
+        categoriaRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()){
+                    categoriaList.clear();
+                    for (DataSnapshot ds : snapshot.getChildren()){
+                        Categoria categoria = ds.getValue(Categoria.class);
+                        categoriaList.add(categoria);
+                    }
+                    configuraCategoriasEdicao();
+                }
+                Collections.reverse(categoriaList);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    private void configuraCategoriasEdicao(){
+        if (!novoProduto) { // Edição
+            for (Categoria categoria : categoriaList){
+                if (produto.getIdsCategorias().contains(categoria.getId())) {
+                    categoriaSelecionadaList.add(categoria.getNome());
+                }
+            }
+            Collections.reverse(categoriaSelecionadaList);
+            categoriasSelecionadas();
+        }
+    }
+
+    private void  categoriasSelecionadas()  {
+        StringBuilder categorias = new StringBuilder();
+        for (int i = 0; i < categoriaSelecionadaList.size(); i++){
+            if(i != categoriaSelecionadaList.size() -1){
+                categorias.append(categoriaSelecionadaList.get(i)).append(", ");
+            }else {
+                categorias.append(categoriaSelecionadaList.get(i));
+            }
+        }
+        if (!categoriaSelecionadaList.isEmpty()){
+            binding.bntCategorias.setText(categorias);
+        }else {
+            binding.bntCategorias.setText("Nenhuma categoria selecionada");
+        }
+    }
+
     public void validaDados(View view){
         String titulo = binding.edtTitulo.getText().toString().trim();
         String descricao = binding.edtDescricao.getText().toString().trim();
-        String valorAntigo = binding.edtValorAntigo.getText().toString().trim();
-        String valorAtual = binding.edtValorAtual.getText().toString().trim();
+        double valorAntigo = (double) binding.edtValorAntigo.getRawValue() / 100;
+        double valorAtual = (double) binding.edtValorAtual.getRawValue() / 100;
 
         if(!titulo.isEmpty()){
             if(!descricao.isEmpty()){
+                if (valorAtual > 0){
+                    if (!idsCategoriasSelecionadas.isEmpty()){
+                        if(produto == null) produto = new Produto();
 
-                if(produto == null) produto = new Produto();
+                        produto.setTitulo(titulo);
+                        produto.setDescricao(descricao);
+                        produto.setValorAtual(valorAtual);
+                        if (valorAntigo > 0) produto.setValorAntigo(valorAntigo);
+                        produto.setIdsCategorias(idsCategoriasSelecionadas);
 
-                produto.setTitulo(titulo);
-                produto.setDescricao(descricao);
-                produto.setValorAntigo(10);
-                produto.setValorAtual(8);
+                        if(novoProduto){ // Novo produto
+                            if(imagemUploadList.size() == 3){
+                                for (int i = 0; i < imagemUploadList.size(); i++) {
+                                    salvarImagemFirebase(imagemUploadList.get(i), i);
+                                }
+                            }else{
+                                ocultaTeclado();
+                                Toast.makeText(this, "Escolha 3 imagens para o produto.", Toast.LENGTH_SHORT).show();
+                            }
+                        }else { // Edição do produto
 
-                if(novoProduto){ // Novo produto
-                    if(imagemUploadList.size() == 3){
-                        for (int i = 0; i < imagemUploadList.size(); i++) {
-                            salvarImagemFirebase(imagemUploadList.get(i));
+                            ocultaTeclado();
+
+                            if(imagemUploadList.size() > 0){
+                                for (int i = 0; i < imagemUploadList.size(); i++) {
+                                    salvarImagemFirebase(imagemUploadList.get(i), i);
+                                }
+                            }else {
+                                produto.salvar(false);
+                            }
                         }
                     }else{
                         ocultaTeclado();
-                        Toast.makeText(this, "Escolha 3 imagens para o produto.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "Selecione pelo menos uma categoria para o prouto.", Toast.LENGTH_SHORT).show();
                     }
-                }else { // Edição do produto
-                    if(imagemUploadList.size() > 0){
-                        for (int i = 0; i < imagemUploadList.size(); i++) {
-                            salvarImagemFirebase(imagemUploadList.get(i));
-                        }
-                    }else {
-                        produto.salvar(false);
-                    }
-                }
 
+
+                }else {
+                    binding.edtValorAtual.setError("Informe um valor válido");
+                }
             }else {
                 binding.edtDescricao.setError("Informação obrigatória.");
             }
@@ -281,7 +446,7 @@ public class LojaFormProdutoActivity extends AppCompatActivity {
 
     }
 
-    private void salvarImagemFirebase(ImagemUpload imagemUpload) {
+    private void salvarImagemFirebase(ImagemUpload imagemUpload, int count) {
 
         int index = imagemUpload.getIndex();
         String caminhoImagem = imagemUpload.getCaminhoImagem();
@@ -296,10 +461,21 @@ public class LojaFormProdutoActivity extends AppCompatActivity {
         uploadTask.addOnSuccessListener(taskSnapshot -> storageReference.getDownloadUrl().addOnCompleteListener(task -> {
 
             imagemUpload.setCaminhoImagem(task.getResult().toString());
-            produto.getUrlsImagens().add(imagemUpload);
 
-            if(imagemUploadList.size() == index + 1){
+            if (novoProduto) {
+                produto.getUrlsImagens().add(imagemUpload);
+            }else {
+                produto.getUrlsImagens().set(index, imagemUpload);
+            }
+
+            if(imagemUploadList.size() == count + 1){
                 produto.salvar(novoProduto);
+                imagemUploadList.clear();
+
+                if (novoProduto) {
+                    finish();
+                }
+
             }
 
         })).addOnFailureListener(e -> Toast.makeText(
@@ -312,7 +488,7 @@ public class LojaFormProdutoActivity extends AppCompatActivity {
             result -> {
                 if (result.getResultCode() == RESULT_OK) {
 
-                    String caminhaImagem;
+                    String caminhoImagem;
 
                     if (resultCode <= 2) { // Galeria
 
@@ -320,7 +496,7 @@ public class LojaFormProdutoActivity extends AppCompatActivity {
 
                         try {
 
-                            caminhaImagem = imagemSelecionada.toString();
+                            caminhoImagem = imagemSelecionada.toString();
 
                             switch (resultCode) {
                                 case 0:
@@ -337,7 +513,7 @@ public class LojaFormProdutoActivity extends AppCompatActivity {
                                     break;
                             }
 
-                            configUpload(caminhaImagem);
+                            configUpload(caminhoImagem);
 
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -346,7 +522,7 @@ public class LojaFormProdutoActivity extends AppCompatActivity {
                     } else { // Câmera
 
                         File file = new File(currentPhotoPath);
-                        caminhaImagem = String.valueOf(file.toURI());
+                        caminhoImagem = String.valueOf(file.toURI());
 
                         switch (resultCode) {
                             case 3:
@@ -363,7 +539,7 @@ public class LojaFormProdutoActivity extends AppCompatActivity {
                                 break;
                         }
 
-                        configUpload(caminhaImagem);
+                        configUpload(caminhoImagem);
 
                     }
 
@@ -386,11 +562,34 @@ public class LojaFormProdutoActivity extends AppCompatActivity {
         return bitmap;
     }
 
-    // Oculta o teclado do dispotivo
+    private void iniciaComponentes(){
+        binding.edtValorAntigo.setLocale(new Locale("PT", "br"));
+        binding.edtValorAtual.setLocale(new Locale("PT", "br"));
+
+        if (novoProduto){
+            binding.include.textTitulo.setText("Novo produto");
+        }else {
+            binding.include.textTitulo.setText("Edição produto");
+        }
+    }
+
+    // Oculta o teclado do dispositivo
     private void ocultaTeclado() {
         InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
         inputMethodManager.hideSoftInputFromWindow(binding.edtTitulo.getWindowToken(),
                 InputMethodManager.HIDE_NOT_ALWAYS);
     }
 
+    @Override
+    public void onClickListener(Categoria categoria) { //add
+        if(!idsCategoriasSelecionadas.contains(categoria.getId())){
+            idsCategoriasSelecionadas.add(categoria.getId());
+            categoriaSelecionadaList.add(categoria.getNome());
+        }else { //del
+            idsCategoriasSelecionadas.remove(categoria.getId());
+            categoriaSelecionadaList.remove(categoria.getNome());
+        }
+
+        categoriasSelecionadas();
+    }
 }

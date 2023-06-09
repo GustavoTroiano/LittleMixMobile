@@ -4,8 +4,9 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        android:maxSdkVersion="18"/>
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="18" />
     <uses-permission android:name="android.permission.CAMERA" />
 
     <application
@@ -17,6 +18,42 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.LittleMixMobile"
         tools:targetApi="31">
+        <activity
+            android:name=".activity.app.DetalhesPedidoActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activity.usuario.UsuarioPerfilActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activity.usuario.UsuarioSelecionaPagamentoActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activity.loja.LojaFormPagamentoActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activity.loja.LojaPagamentosActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activity.usuario.UsuarioSelecionaEnderecoActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activity.usuario.UsuarioResumoPedidoActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activity.usuario.UsuarioFormEnderecoActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activity.usuario.UsuarioEnderecoActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activity.usuario.DetalhesProdutoActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activity.loja.LojaRecebimentosActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activity.loja.LojaConfigActivity"
+            android:exported="false" />
         <activity
             android:name=".activity.loja.LojaFormProdutoActivity"
             android:exported="false" />
@@ -56,9 +93,8 @@
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths"></meta-data>
+                android:resource="@xml/file_paths" />
         </provider>
-
     </application>
 
 </manifest>

@@ -12,8 +12,13 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.littlemixmobile.R;
+import com.example.littlemixmobile.activity.usuario.MainActivityUsuario;
+import com.example.littlemixmobile.activity.usuario.UsuarioEnderecoActivity;
+import com.example.littlemixmobile.activity.usuario.UsuarioPerfilActivity;
+import com.example.littlemixmobile.autenticacao.CadastroActivity;
 import com.example.littlemixmobile.autenticacao.LoginActivity;
 import com.example.littlemixmobile.databinding.FragmentUsuarioPerfilBinding;
+import com.example.littlemixmobile.helper.FirebaseHelper;
 
 public class UsuarioPerfilFragment extends Fragment {
 
@@ -31,9 +36,50 @@ public class UsuarioPerfilFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        binding.btnLogin.setOnClickListener(v -> {
-            startActivity(new Intent(getActivity(), LoginActivity.class));
-        });
+        configClicks();
+
 
     }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        configMenu();
+    }
+
+    private void configClicks() {
+        binding.btnEntrar.setOnClickListener(v -> startActivity(LoginActivity.class));
+        binding.btnCadastrar.setOnClickListener(v -> {
+            startActivity(new Intent(requireContext(), CadastroActivity.class));
+        });
+        binding.btnMeusDados.setOnClickListener(v -> startActivity(UsuarioPerfilActivity.class));
+        binding.btnEnderecos.setOnClickListener(v -> startActivity(UsuarioEnderecoActivity.class));
+        binding.btnDeslogar.setOnClickListener(v -> {
+            FirebaseHelper.getAuth().signOut();
+            requireActivity().finish();
+            startActivity(new Intent(requireContext(), MainActivityUsuario.class));
+        });
+    }
+
+    private void startActivity(Class<?> clazz) {
+        if (FirebaseHelper.getAutenticado()) {
+            startActivity(new Intent(requireContext(), clazz));
+        } else {
+            startActivity(new Intent(requireContext(), LoginActivity.class));
+        }
+    }
+
+    private void configMenu() {
+        if (FirebaseHelper.getAutenticado()){
+            binding.llLogado.setVisibility(View.GONE);
+            binding.btnDeslogar.setVisibility(View.VISIBLE);
+        }else{
+            binding.llLogado.setVisibility(View.VISIBLE);
+            binding.btnDeslogar.setVisibility(View.GONE);
+
+
+        }
+    }
+
 }

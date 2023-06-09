@@ -86,7 +86,7 @@ public class LojaCategoriaFragment extends Fragment implements CategoriaAdapter.
     private void configRv(){
         binding.rvCategorias.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.rvCategorias.setHasFixedSize(true);
-        categoriaAdapter = new CategoriaAdapter(categoriaList, this);
+        categoriaAdapter = new CategoriaAdapter(R.layout.item_categoria_vertical, false, categoriaList, this);
         binding.rvCategorias.setAdapter(categoriaAdapter);
 
         binding.rvCategorias.setListener(new SwipeLeftRightCallback.Listener() {
@@ -153,6 +153,8 @@ public class LojaCategoriaFragment extends Fragment implements CategoriaAdapter.
             dialog.dismiss();
             categoriaAdapter.notifyDataSetChanged();
         });
+
+        deleteBinding.textTitulo.setText("Deseja remover esta categoria?");
 
         deleteBinding.btnSim.setOnClickListener(view -> {
             categoriaList.remove(categoria);
