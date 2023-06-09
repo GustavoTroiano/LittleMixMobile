@@ -38,19 +38,18 @@ import java.util.List;
 import java.util.Locale;
 
 
-public class UsuarioHomeFragment extends Fragment implements CategoriaAdapter.onClick, LojaProdutoAdapter.OnClickLister, LojaProdutoAdapter.OnClickFavorito {
+public class UsuarioHomeFragment extends Fragment implements CategoriaAdapter.OnClick, LojaProdutoAdapter.OnClickLister, LojaProdutoAdapter.OnClickFavorito {
 
     private FragmentUsuarioHomeBinding binding;
 
     private final List<Categoria> categoriaList = new ArrayList<>();
     private final List<Produto> produtoList = new ArrayList<>();
-    private final List<Produto> filtraProdutoCategoriaList = new ArrayList<>();
+    private final List<Produto> filtroProdutoCategoriaList = new ArrayList<>();
     private final List<String> idsFavoritos = new ArrayList<>();
 
     private CategoriaAdapter categoriaAdapter;
-    private LojaProdutoAdapter lojaProdutoAdapter;
 
-    private  Categoria categoriaSelecionada;
+    private Categoria categoriaSelecionada;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -68,7 +67,6 @@ public class UsuarioHomeFragment extends Fragment implements CategoriaAdapter.on
         configSearchView();
 
         recuperaDados();
-
     }
 
     private void configSearchView(){
@@ -107,14 +105,14 @@ public class UsuarioHomeFragment extends Fragment implements CategoriaAdapter.on
     private void configRvCategorias() {
         binding.rvCategorias.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
         binding.rvCategorias.setHasFixedSize(true);
-        categoriaAdapter = new CategoriaAdapter(R.layout.item_categoria_horzontal, true, categoriaList, this);
+        categoriaAdapter = new CategoriaAdapter(R.layout.item_categoria_horzontal, true, categoriaList, this,requireContext());
         binding.rvCategorias.setAdapter(categoriaAdapter);
     }
 
     private void configRvProdutos(List<Produto> produtoList) {
         binding.rvProdutos.setLayoutManager(new GridLayoutManager(requireContext(), 2));
         binding.rvProdutos.setHasFixedSize(true);
-        lojaProdutoAdapter = new LojaProdutoAdapter(R.layout.item_produto_adapter, produtoList, requireContext(), true, idsFavoritos, this, this);
+        LojaProdutoAdapter lojaProdutoAdapter = new LojaProdutoAdapter(R.layout.item_produto_adapter, produtoList, requireContext(), true, idsFavoritos, this, this);
         binding.rvProdutos.setAdapter(lojaProdutoAdapter);
     }
 
@@ -130,6 +128,10 @@ public class UsuarioHomeFragment extends Fragment implements CategoriaAdapter.on
                 for (DataSnapshot ds : snapshot.getChildren()) {
                     Categoria categoria = ds.getValue(Categoria.class);
                     categoriaList.add(categoria);
+
+                    if(categoria.isTodas() && categoriaSelecionada == null){
+                        categoriaSelecionada = categoria;
+                    }
                 }
 
                 Collections.reverse(categoriaList);
@@ -199,45 +201,48 @@ public class UsuarioHomeFragment extends Fragment implements CategoriaAdapter.on
         }
     }
 
-    private void filtraProdutoCategoria(){
-       if (!categoriaSelecionada.isTodas()){
-           for (Produto produto : produtoList){
-               if (produto.getIdsCategorias().contains(categoriaSelecionada.getId())){
-                   if (!filtraProdutoCategoriaList.contains(produto)){
-                       filtraProdutoCategoriaList.add(produto);
-                   }
-               }
-           }
+    private void filtraProdutoCategoria() {
+        if (!categoriaSelecionada.isTodas()) {
+            filtroProdutoCategoriaList.clear();
+            for (Produto produto : produtoList) {
+                if (produto.getIdsCategorias().contains(categoriaSelecionada.getId())) {
+                    if (!filtroProdutoCategoriaList.contains(produto)) {
+                        filtroProdutoCategoriaList.add(produto);
+                    }
+                }
+            }
 
-           configRvProdutos(filtraProdutoCategoriaList);
-       }else {
-           filtraProdutoCategoriaList.clear();
-           configRvProdutos(produtoList);
-       }
+            configRvProdutos(filtroProdutoCategoriaList);
+        } else {
+            filtroProdutoCategoriaList.clear();
+            configRvProdutos(produtoList);
+        }
     }
 
-
     private void filtraProdutoNome(String pesquisa) {
-        List<Produto> filtraProdutoNomeList = new ArrayList<>();
+        List<Produto> filtroProdutoNomeList = new ArrayList<>();
 
-        if (!filtraProdutoCategoriaList.isEmpty()) {
-            for (Produto produto : filtraProdutoCategoriaList) {
+        if (!filtroProdutoCategoriaList.isEmpty()) {
+            for (Produto produto : filtroProdutoCategoriaList) {
                 if (produto.getTitulo().toUpperCase(Locale.ROOT).contains(pesquisa.toUpperCase(Locale.ROOT))) {
-                    filtraProdutoNomeList.add(produto);
+                    filtroProdutoNomeList.add(produto);
                 }
             }
         } else {
             for (Produto produto : produtoList) {
                 if (produto.getTitulo().toUpperCase(Locale.ROOT).contains(pesquisa.toUpperCase(Locale.ROOT))) {
-                    filtraProdutoNomeList.add(produto);
+                    filtroProdutoNomeList.add(produto);
                 }
             }
-
-
         }
 
-        configRvProdutos(filtraProdutoNomeList);
+        if(filtroProdutoNomeList.isEmpty()){
+            binding.textInfo.setText("Nenhum produto encontrado.");
+        }else {
+            binding.textInfo.setText("");
+        }
 
+        configRvProdutos(filtroProdutoNomeList);
     }
 
     private void listEmpty(List<Produto> produtoList) {
@@ -248,7 +253,7 @@ public class UsuarioHomeFragment extends Fragment implements CategoriaAdapter.on
         }
     }
 
-
+    // Oculta o teclado do dispotivo
     private void ocultaTeclado() {
         InputMethodManager inputMethodManager = (InputMethodManager) requireActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
         inputMethodManager.hideSoftInputFromWindow(binding.searchView.getWindowToken(),
@@ -277,5 +282,5 @@ public class UsuarioHomeFragment extends Fragment implements CategoriaAdapter.on
         }
         Favorito.salvar(idsFavoritos);
     }
-}
 
+}

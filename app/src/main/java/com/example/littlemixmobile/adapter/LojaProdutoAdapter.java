@@ -11,6 +11,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.littlemixmobile.R;
 import com.example.littlemixmobile.helper.FirebaseHelper;
 import com.example.littlemixmobile.model.Categoria;
@@ -18,7 +19,7 @@ import com.example.littlemixmobile.model.Produto;
 import com.example.littlemixmobile.util.GetMask;
 import com.like.LikeButton;
 import com.like.OnLikeListener;
-import com.squareup.picasso.Picasso;
+
 
 import java.util.List;
 
@@ -95,8 +96,11 @@ public class LojaProdutoAdapter extends RecyclerView.Adapter<LojaProdutoAdapter.
 
         for (int i = 0; i < produto.getUrlsImagens().size(); i++) {
             if (produto.getUrlsImagens().get(i).getIndex() == 0) {
-                Picasso.get().load(produto.getUrlsImagens().get(i).getCaminhoImagem()
-                ).into(holder.imagemProduto);
+                Glide.with(context)
+                        .load(produto.getUrlsImagens().get(i).getCaminhoImagem())
+                        .centerCrop()
+                        .into(holder.imagemProduto);
+
             }
         }
 

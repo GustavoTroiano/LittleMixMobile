@@ -40,6 +40,8 @@
             android:inputType="text"
             android:padding="16dp" />
 
+
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -96,6 +98,15 @@
                 android:text="Acréscimo"/>
 
         </RadioGroup>
+
+        <CheckBox
+            android:id="@+id/cbCredito"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:buttonTint="@color/black"
+            android:minHeight="0dp"
+            android:layout_marginTop="8dp"
+            android:text="Credito"/>
 
         <ProgressBar
             android:id="@+id/progressBar"

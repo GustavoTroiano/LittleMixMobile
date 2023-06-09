@@ -30,45 +30,55 @@ public class CadastroActivity extends AppCompatActivity {
     public void validaDados(View view){
         String nome = binding.edtNome.getText().toString().trim();
         String email = binding.edtEmail.getText().toString().trim();
+        String telefone = binding.edtTelefone.getMasked();
         String senha = binding.edtSenha.getText().toString().trim();
-        String confirmaSenha = binding.edtConfimaSenha.getText().toString().trim();
+        String ConfirmaSenha = binding.edtConfirmaSenha.getText().toString().trim();
 
         if(!nome.isEmpty()){
             if(!email.isEmpty()){
-                if(!senha.isEmpty()){
-                    if(!confirmaSenha.isEmpty()){
+                if(!telefone.isEmpty()){
+                    if(telefone.length() == 15){
+                        if(!senha.isEmpty()){
+                            if(!ConfirmaSenha.isEmpty()){
+                                if(senha.equals(ConfirmaSenha)){
 
-                        if(senha.equals(confirmaSenha)){
+                                    binding.progressBar.setVisibility(View.VISIBLE);
 
-                            binding.progressBar.setVisibility(View.VISIBLE);
+                                    Usuario usuario = new Usuario();
+                                    usuario.setNome(nome);
+                                    usuario.setEmail(email);
+                                    usuario.setTelefone(telefone);
+                                    usuario.setSenha(senha);
 
-                            Usuario usuario = new Usuario();
-                            usuario.setNome(nome);
-                            usuario.setEmail(email);
-                            usuario.setSenha(senha);
+                                    criarConta(usuario);
 
-                            criarConta(usuario);
-
+                                }else {
+                                    binding.edtConfirmaSenha.requestFocus();
+                                    binding.edtConfirmaSenha.setError("Senha não confere.");
+                                }
+                            }else {
+                                binding.edtConfirmaSenha.requestFocus();
+                                binding.edtConfirmaSenha.setError("Confirme sua senha.");
+                            }
                         }else {
-                            binding.edtConfimaSenha.requestFocus();
-                            binding.edtConfimaSenha.setError("Senha não confere");
+                            binding.edtSenha.requestFocus();
+                            binding.edtSenha.setError("Informe uma senha.");
                         }
-
-                    }else  {
-                        binding.edtConfimaSenha.requestFocus();
-                        binding.edtConfimaSenha.setError("Confirme a sua senha");
+                    }else {
+                        binding.edtTelefone.requestFocus();
+                        binding.edtTelefone.setError("Fomato do telefone inválido.");
                     }
-                }else  {
-                    binding.edtSenha.requestFocus();
-                    binding.edtSenha.setError("Informe uma senha");
+                }else {
+                    binding.edtTelefone.requestFocus();
+                    binding.edtTelefone.setError("Informe um número de telefone.");
                 }
-            }else  {
+            }else {
                 binding.edtEmail.requestFocus();
-                binding.edtEmail.setError("Informe seu e-mail");
+                binding.edtEmail.setError("Informe seu email.");
             }
-        }else  {
+        }else {
             binding.edtNome.requestFocus();
-            binding.edtNome.setError("Informe seu nome");
+            binding.edtNome.setError("Informe seu nome.");
         }
 
     }

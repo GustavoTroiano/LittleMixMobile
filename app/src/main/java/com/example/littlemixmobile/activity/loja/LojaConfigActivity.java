@@ -19,6 +19,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.example.littlemixmobile.R;
 import com.example.littlemixmobile.databinding.ActivityLojaConfigBinding;
 import com.example.littlemixmobile.helper.FirebaseHelper;
@@ -32,7 +33,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.gun0912.tedpermission.PermissionListener;
 import com.gun0912.tedpermission.TedPermission;
-import com.squareup.picasso.Picasso;
+
 
 import java.io.File;
 import java.util.List;
@@ -103,7 +104,10 @@ public class LojaConfigActivity extends AppCompatActivity {
 
     private void configDados() {
         if (loja.getUrlLogo() != null){
-            Picasso.get().load(loja.getUrlLogo()).into(binding.imgLogo);
+            Glide.with(this)
+                    .load(loja.getUrlLogo())
+                    .centerCrop()
+                    .into(binding.imgLogo);
         }
         if (loja.getNome() != null){
             binding.edtLoja.setText(loja.getNome());
@@ -117,53 +121,85 @@ public class LojaConfigActivity extends AppCompatActivity {
         if (loja.getFreteGratis() != 0){
             binding.edtFrete.setText(String.valueOf(loja.getFreteGratis() *10));
         }
+        if (loja.getPublicKey() != null) {
+            binding.edtPublicKey.setText(loja.getPublicKey());
+        }
+
+        if (loja.getAccessToken() != null) {
+            binding.edtAcessToken.setText(loja.getAccessToken());
+        }
+
+        if (loja.getParcelas() != 0) {
+            binding.edtParcelas.setText(String.valueOf(loja.getParcelas()));
+        }
 
     }
 
     private void validaDados() {
+
         String nomeloja = binding.edtLoja.getText().toString().trim();
         String CNPJ = binding.edtCNPJ.getMasked();
         double pedidoMinimo = (double) binding.edtPedidoMinimo.getRawValue() / 100;
         double freteGratis = (double) binding.edtFrete.getRawValue() / 100;
+        String publicKey = binding.edtPublicKey.getText().toString().trim();
+        String acessToken = binding.edtAcessToken.getText().toString().trim();
 
-        if (!nomeloja.isEmpty()){
-            if (!CNPJ.isEmpty()){
-                if (CNPJ.length() == 18){
+        String parcelasStr = binding.edtParcelas.getText().toString().trim();
+        int parcelas = 0;
+        if (!parcelasStr.isEmpty()){
+            parcelas = Integer.parseInt(binding.edtParcelas.getText().toString().trim());
+        }
 
-                    loja.setNome(nomeloja);
-                    loja.setCNPJ(CNPJ);
-                    loja.setPedidoMinimo(pedidoMinimo);
-                    loja.setFreteGratis(freteGratis);
+        if (!nomeloja.isEmpty()) {
+            if (!CNPJ.isEmpty()) {
+                if (CNPJ.length() == 18) {
+                    if (!publicKey.isEmpty()) {
+                        if (!acessToken.isEmpty()) {
+                            if (parcelas > 0 && parcelas <= 12) {
 
-                    if (caminhoImagem != null){
-                        salvarImagemFirebase();
-                    }else if (loja.getUrlLogo() != null){
+                                ocultaTeclado();
 
-                        loja.salvar();
+                                loja.setNome(nomeloja);
+                                loja.setCNPJ(CNPJ);
+                                loja.setPedidoMinimo(pedidoMinimo);
+                                loja.setFreteGratis(freteGratis);
+                                loja.setPublicKey(publicKey);
+                                loja.setAccessToken(acessToken);
+                                loja.setParcelas(parcelas);
 
-                    }else {
-                        ocultaTeclado();
-                        Toast.makeText(this, "Escolha uma logo para sua loja.", Toast.LENGTH_SHORT).show();
+                                if (caminhoImagem != null) {
+                                    salvarImagemFirebase();
+                                } else if (loja.getUrlLogo() != null) {
+                                    loja.salvar();
+                                } else {
+                                    ocultaTeclado();
+                                    Toast.makeText(this, "Escolha uma logo para sua loja.", Toast.LENGTH_SHORT).show();
+                                }
+
+                            } else {
+                                binding.edtParcelas.setError("Mínimo 1 e máximo 12.");
+                                binding.edtParcelas.requestFocus();
+                            }
+                        } else {
+                            binding.edtAcessToken.setError("Informe seu acess token.");
+                            binding.edtAcessToken.requestFocus();
+                        }
+                    } else {
+                        binding.edtPublicKey.setError("Informe sua public key.");
+                        binding.edtPublicKey.requestFocus();
                     }
-
-
-
-
-                }else{
+                } else {
                     binding.edtCNPJ.setError("CNPJ inválido.");
                     binding.edtCNPJ.requestFocus();
                 }
-            }else{
+            } else {
                 binding.edtCNPJ.setError("Informe o CNPJ da loja.");
                 binding.edtCNPJ.requestFocus();
             }
-        }else{
+        } else {
             binding.edtLoja.setError("Informe um nome para sua loja.");
             binding.edtLoja.requestFocus();
         }
-
-
-
     }
 
     private void salvarImagemFirebase() {

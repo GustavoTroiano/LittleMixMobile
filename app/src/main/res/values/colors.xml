@@ -19,4 +19,9 @@
     <color name="DarkGray">#A9A9A9</color>
 
     <color name="color_status_pedido_aprovado">#34A853</color>
+
+
+    <color name="ui_components_android_color_primary">@color/gray</color>
+
+    <color name="ui_components_android_color_primary_dark">@color/gray</color>
 </resources>

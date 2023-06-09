@@ -25,17 +25,19 @@
                 layout="@layout/ib_voltar"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
-                android:layout_marginStart="24dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.063"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                tools:layout_editor_absoluteY="0dp" />
 
             <EditText
                 android:id="@+id/edtNome"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginHorizontal="24dp"
+                android:layout_marginTop="16dp"
                 android:background="@drawable/bg_edit_off"
                 android:drawableStart="@drawable/ic_user_login_off"
-                android:layout_marginHorizontal="24dp"
                 android:drawablePadding="16dp"
                 android:hint="Nome"
                 android:inputType="textPersonName"
@@ -44,57 +46,78 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/include"
                 app:layout_constraintVertical_chainStyle="packed" />
 
             <EditText
                 android:id="@+id/edtEmail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginHorizontal="24dp"
+                android:layout_marginTop="16dp"
                 android:background="@drawable/bg_edit_off"
                 android:drawableStart="@drawable/ic_email_off"
                 android:drawablePadding="16dp"
-                android:layout_marginHorizontal="24dp"
-                android:layout_marginTop="16dp"
                 android:hint="Email"
                 android:inputType="textEmailAddress"
                 android:padding="16dp"
-                app:layout_constraintBottom_toTopOf="@+id/edtSenha"
+                app:layout_constraintBottom_toTopOf="@+id/edtTelefone"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/edtNome" />
 
+            <com.santalu.maskara.widget.MaskEditText
+                android:id="@+id/edtTelefone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="24dp"
+
+
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_edit_off"
+                android:hint="(00) 00000-0000"
+                android:inputType="number"
+                android:padding="16dp"
+                app:layout_constraintBottom_toTopOf="@+id/edtSenha"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/edtEmail"
+                app:mask="(__) _____-____"
+                app:maskCharacter="_"
+                app:maskStyle="completable" />
+
             <EditText
                 android:id="@+id/edtSenha"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginHorizontal="24dp"
+                android:layout_marginTop="16dp"
                 android:background="@drawable/bg_edit_off"
                 android:drawableStart="@drawable/ic_senha_off"
                 android:drawablePadding="16dp"
-                android:layout_marginHorizontal="24dp"
-                android:layout_marginTop="16dp"
                 android:hint="Senha"
                 android:inputType="textPassword"
                 android:padding="16dp"
-                app:layout_constraintBottom_toTopOf="@+id/edtConfimaSenha"
+                app:layout_constraintBottom_toTopOf="@+id/edtConfirmaSenha"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/edtEmail" />
+                app:layout_constraintTop_toBottomOf="@+id/edtTelefone" />
 
             <EditText
-                android:id="@+id/edtConfimaSenha"
+                android:id="@+id/edtConfirmaSenha"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginHorizontal="24dp"
+                android:layout_marginTop="16dp"
                 android:background="@drawable/bg_edit_off"
                 android:drawableStart="@drawable/ic_senha_off"
                 android:drawablePadding="16dp"
                 android:hint="Confirme a senha"
                 android:inputType="textPassword"
                 android:padding="16dp"
-                android:layout_marginHorizontal="24dp"
-                android:layout_marginTop="16dp"
                 app:layout_constraintBottom_toTopOf="@+id/btnCriarConta"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
@@ -105,10 +128,10 @@
                 android:id="@+id/btnCriarConta"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/bg_btn"
-                android:onClick="validaDados"
                 android:layout_marginHorizontal="24dp"
                 android:layout_marginTop="16dp"
+                android:background="@drawable/bg_btn"
+                android:onClick="validaDados"
                 android:text="Criar conta"
                 android:textAllCaps="false"
                 android:textColor="@color/white"
@@ -116,21 +139,21 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/edtConfimaSenha" />
+                app:layout_constraintTop_toBottomOf="@+id/edtConfirmaSenha" />
 
             <ProgressBar
                 android:id="@+id/progressBar"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:visibility="gone"
-                tools:visibility="visible"
+                android:layout_marginTop="16dp"
                 android:indeterminateTint="@color/color_LightGrey"
+                android:visibility="gone"
                 app:layout_constraintBottom_toTopOf="@+id/linearLayout"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/btnCriarConta" />
+                app:layout_constraintTop_toBottomOf="@+id/btnCriarConta"
+                tools:visibility="visible" />
 
             <LinearLayout
                 android:id="@+id/linearLayout"
@@ -158,6 +181,20 @@
                     android:textColor="@color/color_gray"
                     android:textStyle="bold" />
             </LinearLayout>
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_begin="20dp" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_begin="-9dp" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

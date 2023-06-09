@@ -54,8 +54,8 @@ public class UsuarioSelecionaPagamentoActivity extends AppCompatActivity impleme
                 Intent intent = new Intent(this, UsuarioResumoPedidoActivity.class);
                 intent.putExtra("pagamentoSelecionado", formaPagamento);
                 startActivity(intent);
-            }else{
-                Toast.makeText(this, "Selecione a forma de pagamento.", Toast.LENGTH_SHORT).show();
+            }else {
+                Toast.makeText(this, "Selecione a forma de pagamento do seu pedido.", Toast.LENGTH_SHORT).show();
             }
         });
     }

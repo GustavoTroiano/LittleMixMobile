@@ -1,5 +1,6 @@
 package com.example.littlemixmobile.adapter;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,9 +11,10 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.littlemixmobile.R;
 import com.example.littlemixmobile.model.Categoria;
-import com.squareup.picasso.Picasso;
+
 
 import java.util.List;
 
@@ -20,11 +22,14 @@ public class CategoriaDialogAdapter extends RecyclerView.Adapter <CategoriaDialo
 
     private final List<String> idsCategoriasSelecionadas;
     private final List<Categoria> categoriaList;
-    private onClick onClick;
+    private final Context context;
+    private final onClick onClick;
 
-    public CategoriaDialogAdapter(List<String> idsCategoriasSelecionadas, List<Categoria> categoriaList, CategoriaDialogAdapter.onClick onClick) {
+
+    public CategoriaDialogAdapter(List<String> idsCategoriasSelecionadas, List<Categoria> categoriaList, Context context, CategoriaDialogAdapter.onClick onClick) {
         this.idsCategoriasSelecionadas = idsCategoriasSelecionadas;
         this.categoriaList = categoriaList;
+        this.context = context;
         this.onClick = onClick;
     }
 
@@ -39,7 +44,12 @@ public class CategoriaDialogAdapter extends RecyclerView.Adapter <CategoriaDialo
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         Categoria categoria = categoriaList.get(position);
 
-        Picasso.get().load(categoria.getUrlImagem()).into(holder.imagemCategoria);
+
+        Glide.with(context)
+                .load(categoria.getUrlImagem())
+                .centerCrop()
+                .into(holder.imagemCategoria);
+
 
         holder.nomeCategoria.setText(categoria.getNome());
 

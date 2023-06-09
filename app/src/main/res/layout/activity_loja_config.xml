@@ -13,7 +13,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -42,12 +41,11 @@
                     android:id="@+id/imgLogo"
                     android:layout_width="150dp"
                     android:layout_height="150dp"
-                    android:padding="10dp"
+                    android:padding="8dp"
+                    app:tint="@color/color_gray"
                     tools:layout_editor_absoluteX="105dp"
-                    tools:layout_editor_absoluteY="106dp"
+                    tools:layout_editor_absoluteY="89dp"
                     tools:src="@drawable/ic_galeria" />
-
-
 
             </androidx.cardview.widget.CardView>
 
@@ -86,16 +84,16 @@
 
             <com.santalu.maskara.widget.MaskEditText
                 android:id="@+id/edtCNPJ"
-                android:inputType="number"
-                app:mask="__.___.___/____-__"
-                app:maskCharacter="_"
-                app:maskStyle="completable"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="24dp"
                 android:layout_marginTop="8dp"
                 android:background="@drawable/bg_edit_off"
-                android:hint="Ex 47.478.248/0001-26"
+                android:hint="Ex 91.296.862/0001-69"
+                android:inputType="number"
+                app:mask="__.___.___/____-__"
+                app:maskCharacter="_"
+                app:maskStyle="completable"
                 android:padding="16dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -130,8 +128,9 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:background="@drawable/bg_edit_off"
-                        android:hint="Machila Adidas"
+                        android:hint="Mochila Adidas"
                         android:padding="16dp" />
+
                 </LinearLayout>
 
                 <LinearLayout
@@ -153,28 +152,99 @@
                         android:layout_marginTop="8dp"
                         android:background="@drawable/bg_edit_off"
                         android:padding="16dp" />
+
                 </LinearLayout>
 
             </LinearLayout>
+
+            <TextView
+                android:id="@+id/textView6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:layout_marginTop="16dp"
+                android:text="Public Key"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/linearLayout5" />
+
+            <EditText
+                android:id="@+id/edtPublicKey"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginHorizontal="24dp"
+                android:background="@drawable/bg_edit_off"
+                android:hint="Public key"
+                android:inputType="text"
+                android:padding="16dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView6" />
+
+            <TextView
+                android:id="@+id/textView7"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginStart="24dp"
+                android:text="Acess Token"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/edtPublicKey" />
+
+            <EditText
+                android:id="@+id/edtAcessToken"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginHorizontal="24dp"
+                android:background="@drawable/bg_edit_off"
+                android:hint="Acess token"
+                android:inputType="text"
+                android:padding="16dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView7" />
+
+            <TextView
+                android:id="@+id/textView8"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginStart="24dp"
+                android:text="Parcelas"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/edtAcessToken" />
+
+            <EditText
+                android:id="@+id/edtParcelas"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_edit_off"
+                android:hint="Parcelas"
+                android:padding="16dp"
+                android:layout_marginHorizontal="24dp"
+                android:inputType="number"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView8" />
 
             <android.widget.Button
                 android:id="@+id/btnSalvar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                android:layout_marginBottom="24dp"
                 android:layout_marginHorizontal="24dp"
-                android:background="@drawable/bg_btn"
+                android:layout_marginBottom="24dp"
                 android:layout_marginTop="16dp"
+                android:background="@drawable/bg_btn"
                 android:text="Salvar"
                 android:textAllCaps="false"
                 android:textColor="@color/white"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.75"
+                app:layout_constraintHorizontal_bias="0.666"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/linearLayout5"
-                app:layout_constraintVertical_bias="0.0" />
+                app:layout_constraintTop_toBottomOf="@+id/edtParcelas" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

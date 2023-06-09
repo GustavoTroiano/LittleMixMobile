@@ -9,7 +9,7 @@ import android.util.Log;
 import com.example.littlemixmobile.model.ImagemUpload;
 import com.example.littlemixmobile.model.ItemPedido;
 import com.example.littlemixmobile.model.Produto;
-import com.squareup.picasso.Picasso;
+
 
 import java.util.ArrayList;
 import java.util.List;

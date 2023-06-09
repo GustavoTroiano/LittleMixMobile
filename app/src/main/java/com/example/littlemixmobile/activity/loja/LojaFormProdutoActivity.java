@@ -25,6 +25,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.example.littlemixmobile.R;
 import com.example.littlemixmobile.adapter.CategoriaDialogAdapter;
 import com.example.littlemixmobile.databinding.ActivityLojaFormProdutoBinding;
@@ -45,7 +46,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.gun0912.tedpermission.PermissionListener;
 import com.gun0912.tedpermission.TedPermission;
-import com.squareup.picasso.Picasso;
+
 
 import java.io.File;
 import java.io.IOException;
@@ -112,9 +113,22 @@ public class LojaFormProdutoActivity extends AppCompatActivity implements Catego
         binding.imageFake1.setVisibility(View.GONE);
         binding.imageFake2.setVisibility(View.GONE);
 
-        Picasso.get().load(produto.getUrlsImagens().get(0).getCaminhoImagem()).into(binding.imagemProduto0);
-        Picasso.get().load(produto.getUrlsImagens().get(1).getCaminhoImagem()).into(binding.imagemProduto1);
-        Picasso.get().load(produto.getUrlsImagens().get(2).getCaminhoImagem()).into(binding.imagemProduto2);
+
+
+        Glide.with(this)
+                .load(produto.getUrlsImagens().get(0).getCaminhoImagem())
+                .centerCrop()
+                .into(binding.imagemProduto0);
+
+        Glide.with(this)
+                .load(produto.getUrlsImagens().get(1).getCaminhoImagem())
+                .centerCrop()
+                .into(binding.imagemProduto1);
+
+        Glide.with(this)
+                .load(produto.getUrlsImagens().get(2).getCaminhoImagem())
+                .centerCrop()
+                .into(binding.imagemProduto2);
 
         binding.edtTitulo.setText(produto.getTitulo());
         binding.edtDescricao.setText(produto.getDescricao());
@@ -132,7 +146,7 @@ public class LojaFormProdutoActivity extends AppCompatActivity implements Catego
     private void configRv(){
         categoriaBinding.rvCategorias.setLayoutManager(new LinearLayoutManager(this));
         categoriaBinding.rvCategorias.setHasFixedSize(true);
-        CategoriaDialogAdapter categoriaDialogAdapter = new CategoriaDialogAdapter(idsCategoriasSelecionadas, categoriaList, this);
+        CategoriaDialogAdapter categoriaDialogAdapter = new CategoriaDialogAdapter(idsCategoriasSelecionadas, categoriaList, this,this);
         categoriaBinding.rvCategorias.setAdapter(categoriaDialogAdapter);
     }
 

@@ -1,23 +1,27 @@
 package com.example.littlemixmobile.adapter;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
 import com.example.littlemixmobile.R;
 import com.example.littlemixmobile.model.ImagemUpload;
 import com.smarteist.autoimageslider.SliderViewAdapter;
-import com.squareup.picasso.Picasso;
+
 
 import java.util.List;
 
 public class SliderAdapter extends SliderViewAdapter<SliderAdapter.MyViewHolder>{
 
-    private List<ImagemUpload> urlsImagens;
+    private final List<ImagemUpload> urlsImagens;
+    private final Context context;
 
-    public SliderAdapter(List<ImagemUpload> urlsImagens) {
+    public SliderAdapter(List<ImagemUpload> urlsImagens, Context context) {
         this.urlsImagens = urlsImagens;
+        this.context = context;
     }
 
     @Override
@@ -30,7 +34,9 @@ public class SliderAdapter extends SliderViewAdapter<SliderAdapter.MyViewHolder>
     public void onBindViewHolder(MyViewHolder viewHolder, int position) {
         ImagemUpload imagemUpload = urlsImagens.get(position);
 
-        Picasso.get().load(imagemUpload.getCaminhoImagem()).into(viewHolder.imgSlide);
+        Glide.with(context)
+                .load(imagemUpload.getCaminhoImagem())
+                .into(viewHolder.imgSlide);
     }
 
     @Override

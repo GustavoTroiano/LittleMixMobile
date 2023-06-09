@@ -1,6 +1,7 @@
 package com.example.littlemixmobile.fragment.loja;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -14,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.example.littlemixmobile.R;
 import com.example.littlemixmobile.activity.loja.LojaFormProdutoActivity;
 import com.example.littlemixmobile.adapter.LojaProdutoAdapter;
@@ -26,7 +28,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
-import com.squareup.picasso.Picasso;
+
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,7 +36,7 @@ import java.util.List;
 
 public class LojaProdutoFragment extends Fragment implements LojaProdutoAdapter.OnClickLister {
 
-    private List<Produto> produtoList = new ArrayList<>();
+    private final List<Produto> produtoList = new ArrayList<>();
 
     private LojaProdutoAdapter lojaProdutoAdapter;
 
@@ -43,9 +45,8 @@ public class LojaProdutoFragment extends Fragment implements LojaProdutoAdapter.
     private AlertDialog dialog;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         binding = FragmentLojaProdutoBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
@@ -57,13 +58,11 @@ public class LojaProdutoFragment extends Fragment implements LojaProdutoAdapter.
         configClicks();
 
         configRv();
-
     }
 
     @Override
     public void onStart() {
         super.onStart();
-
         recuperaProdutos();
     }
 
@@ -125,8 +124,9 @@ public class LojaProdutoFragment extends Fragment implements LojaProdutoAdapter.
 
         for (int i = 0; i < produto.getUrlsImagens().size(); i++) {
             if (produto.getUrlsImagens().get(i).getIndex() == 0) {
-                Picasso.get().load(produto.getUrlsImagens().get(i).getCaminhoImagem()
-                ).into(dialogBinding.imagemProduto);
+                Glide.with(requireContext())
+                        .load(produto.getUrlsImagens().get(i).getCaminhoImagem())
+                        .into(dialogBinding.imagemProduto);
             }
         }
 

@@ -3,6 +3,7 @@ package com.example.littlemixmobile.fragment.usuario;
 import static android.app.Activity.RESULT_OK;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -18,6 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.example.littlemixmobile.DAO.ItemDAO;
 import com.example.littlemixmobile.DAO.ItemPedidoDAO;
 import com.example.littlemixmobile.R;
@@ -40,7 +42,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 import com.like.LikeButton;
 import com.like.OnLikeListener;
-import com.squareup.picasso.Picasso;
+
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -54,6 +56,8 @@ public class UsuarioCarrinhoFragment extends Fragment implements CarrinhoAdapter
     private final List<String> idsFavoritos = new ArrayList<>();
 
     private CarrinhoAdapter carrinhoAdapter;
+
+    private Context context;
 
     private ItemDAO itemDAO;
     private ItemPedidoDAO itemPedidoDAO;
@@ -193,8 +197,12 @@ public class UsuarioCarrinhoFragment extends Fragment implements CarrinhoAdapter
             }
         });
 
-        Picasso.get().load(produto.getUrlsImagens().get(0).getCaminhoImagem()
-        ).into(dialogBinding.imagemProduto);
+
+
+        Glide.with(context)
+                .load(produto.getUrlsImagens().get(0).getCaminhoImagem())
+                .centerCrop()
+                .into(dialogBinding.imagemProduto);
 
         dialogBinding.txtNomeProduto.setText(produto.getTitulo());
 

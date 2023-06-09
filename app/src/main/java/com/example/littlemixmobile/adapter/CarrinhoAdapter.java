@@ -11,12 +11,13 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.littlemixmobile.DAO.ItemPedidoDAO;
 import com.example.littlemixmobile.R;
 import com.example.littlemixmobile.model.ItemPedido;
 import com.example.littlemixmobile.model.Produto;
 import com.example.littlemixmobile.util.GetMask;
-import com.squareup.picasso.Picasso;
+
 
 import java.util.List;
 
@@ -50,7 +51,10 @@ public class CarrinhoAdapter extends RecyclerView.Adapter<CarrinhoAdapter.MyView
         holder.textTitulo.setText(produto.getTitulo());
         holder.textQuantidade.setText(String.valueOf(itemPedido.getQuantidade()));
         holder.textValor.setText(context.getString(R.string.valor, GetMask.getValor(itemPedido.getValor() * itemPedido.getQuantidade())));
-        Picasso.get().load(produto.getUrlsImagens().get(0).getCaminhoImagem()).into(holder.imgProduto);
+        Glide.with(context)
+                .load(produto.getUrlsImagens().get(0).getCaminhoImagem())
+                .centerCrop()
+                .into(holder.imgProduto);
 
         holder.itemView.setOnClickListener(v -> onClick.onClickLister(position, "detalhe"));
         holder.imgRemover.setOnClickListener(v -> onClick.onClickLister(position, "remover"));
