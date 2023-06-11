@@ -51,9 +51,9 @@ public class CarrinhoAdapter extends RecyclerView.Adapter<CarrinhoAdapter.MyView
         holder.textTitulo.setText(produto.getTitulo());
         holder.textQuantidade.setText(String.valueOf(itemPedido.getQuantidade()));
         holder.textValor.setText(context.getString(R.string.valor, GetMask.getValor(itemPedido.getValor() * itemPedido.getQuantidade())));
+
         Glide.with(context)
                 .load(produto.getUrlsImagens().get(0).getCaminhoImagem())
-                .centerCrop()
                 .into(holder.imgProduto);
 
         holder.itemView.setOnClickListener(v -> onClick.onClickLister(position, "detalhe"));
@@ -69,7 +69,7 @@ public class CarrinhoAdapter extends RecyclerView.Adapter<CarrinhoAdapter.MyView
     }
 
     public interface OnClick {
-        public void onClickLister(int position, String operacao);
+        void onClickLister(int position, String operacao);
     }
 
     static class MyViewHolder extends RecyclerView.ViewHolder {

@@ -57,8 +57,6 @@ public class UsuarioCarrinhoFragment extends Fragment implements CarrinhoAdapter
 
     private CarrinhoAdapter carrinhoAdapter;
 
-    private Context context;
-
     private ItemDAO itemDAO;
     private ItemPedidoDAO itemPedidoDAO;
 
@@ -166,7 +164,7 @@ public class UsuarioCarrinhoFragment extends Fragment implements CarrinhoAdapter
 
         }
 
-        carrinhoAdapter.notifyDataSetChanged();
+        carrinhoAdapter.notifyItemChanged(position);
 
         configTotalCarrinho();
 
@@ -197,11 +195,8 @@ public class UsuarioCarrinhoFragment extends Fragment implements CarrinhoAdapter
             }
         });
 
-
-
-        Glide.with(context)
+        Glide.with(requireContext())
                 .load(produto.getUrlsImagens().get(0).getCaminhoImagem())
-                .centerCrop()
                 .into(dialogBinding.imagemProduto);
 
         dialogBinding.txtNomeProduto.setText(produto.getTitulo());
@@ -242,7 +237,7 @@ public class UsuarioCarrinhoFragment extends Fragment implements CarrinhoAdapter
 
         itemDAO.remover(itemPedido);
 
-        carrinhoAdapter.notifyDataSetChanged();
+        carrinhoAdapter.notifyItemRemoved(position);
 
         configInfo();
 
