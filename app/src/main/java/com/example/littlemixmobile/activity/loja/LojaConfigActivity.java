@@ -41,9 +41,6 @@ import java.util.Locale;
 
 public class LojaConfigActivity extends AppCompatActivity {
 
-    private EditText edtPedidoMinimo;
-    private EditText edtFrete;
-
     private ActivityLojaConfigBinding binding;
 
     private String caminhoImagem = null;
@@ -61,32 +58,28 @@ public class LojaConfigActivity extends AppCompatActivity {
         iniciaComponentes();
 
         configClicks();
-
-
     }
 
-    private void configClicks(){
-        binding.include.textTitulo.setText("Configuraçãoes");
+    private void configClicks() {
+        binding.include.textTitulo.setText("Configurações");
         binding.include.include.ibVoltar.setOnClickListener(v -> finish());
 
         binding.imgLogo.setOnClickListener(v -> {
             verificaPermissaoGaleria();
-
-
-
         });
 
-
         binding.btnSalvar.setOnClickListener(v -> {
-            if (loja != null){
+            if (loja != null) {
                 validaDados();
-            }else {
+            } else {
                 Toast.makeText(this, "Ainda estamos recuperando as informações da loja, aguarde...", Toast.LENGTH_SHORT).show();
             }
         });
     }
-    private void recuperaLoja(){
-        DatabaseReference lojaRef = FirebaseHelper.getDatabaseReference().child("loja");
+
+    private void recuperaLoja() {
+        DatabaseReference lojaRef = FirebaseHelper.getDatabaseReference()
+                .child("loja");
         lojaRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -103,24 +96,28 @@ public class LojaConfigActivity extends AppCompatActivity {
     }
 
     private void configDados() {
-        if (loja.getUrlLogo() != null){
+        if (loja.getUrlLogo() != null) {
             Glide.with(this)
                     .load(loja.getUrlLogo())
-                    .centerCrop()
                     .into(binding.imgLogo);
         }
-        if (loja.getNome() != null){
+
+        if (loja.getNome() != null) {
             binding.edtLoja.setText(loja.getNome());
         }
-        if (loja.getCNPJ() != null){
+
+        if (loja.getCNPJ() != null) {
             binding.edtCNPJ.setText(loja.getCNPJ());
         }
-        if (loja.getPedidoMinimo() != 0){
-            binding.edtPedidoMinimo.setText(String.valueOf(loja.getPedidoMinimo() *10));
+
+        if (loja.getPedidoMinimo() != 0) {
+            binding.edtPedidoMinimo.setText(String.valueOf(loja.getPedidoMinimo() * 10));
         }
-        if (loja.getFreteGratis() != 0){
-            binding.edtFrete.setText(String.valueOf(loja.getFreteGratis() *10));
+
+        if (loja.getFreteGratis() != 0) {
+            binding.edtFrete.setText(String.valueOf(loja.getFreteGratis() * 10));
         }
+
         if (loja.getPublicKey() != null) {
             binding.edtPublicKey.setText(loja.getPublicKey());
         }
@@ -132,12 +129,10 @@ public class LojaConfigActivity extends AppCompatActivity {
         if (loja.getParcelas() != 0) {
             binding.edtParcelas.setText(String.valueOf(loja.getParcelas()));
         }
-
     }
 
     private void validaDados() {
-
-        String nomeloja = binding.edtLoja.getText().toString().trim();
+        String nomeLoja = binding.edtLoja.getText().toString().trim();
         String CNPJ = binding.edtCNPJ.getMasked();
         double pedidoMinimo = (double) binding.edtPedidoMinimo.getRawValue() / 100;
         double freteGratis = (double) binding.edtFrete.getRawValue() / 100;
@@ -146,11 +141,11 @@ public class LojaConfigActivity extends AppCompatActivity {
 
         String parcelasStr = binding.edtParcelas.getText().toString().trim();
         int parcelas = 0;
-        if (!parcelasStr.isEmpty()){
+        if (!parcelasStr.isEmpty()) {
             parcelas = Integer.parseInt(binding.edtParcelas.getText().toString().trim());
         }
 
-        if (!nomeloja.isEmpty()) {
+        if (!nomeLoja.isEmpty()) {
             if (!CNPJ.isEmpty()) {
                 if (CNPJ.length() == 18) {
                     if (!publicKey.isEmpty()) {
@@ -159,7 +154,7 @@ public class LojaConfigActivity extends AppCompatActivity {
 
                                 ocultaTeclado();
 
-                                loja.setNome(nomeloja);
+                                loja.setNome(nomeLoja);
                                 loja.setCNPJ(CNPJ);
                                 loja.setPedidoMinimo(pedidoMinimo);
                                 loja.setFreteGratis(freteGratis);
@@ -203,9 +198,6 @@ public class LojaConfigActivity extends AppCompatActivity {
     }
 
     private void salvarImagemFirebase() {
-
-
-
         StorageReference storageReference = FirebaseHelper.getStorageReference()
                 .child("imagens")
                 .child("loja")
@@ -213,8 +205,6 @@ public class LojaConfigActivity extends AppCompatActivity {
 
         UploadTask uploadTask = storageReference.putFile(Uri.parse(caminhoImagem));
         uploadTask.addOnSuccessListener(taskSnapshot -> storageReference.getDownloadUrl().addOnCompleteListener(task -> {
-
-
 
             loja.setUrlLogo(task.getResult().toString());
             loja.salvar();
@@ -288,11 +278,12 @@ public class LojaConfigActivity extends AppCompatActivity {
         return bitmap;
     }
 
-    private void iniciaComponentes(){
+    private void iniciaComponentes() {
         binding.edtPedidoMinimo.setLocale(new Locale("PT", "br"));
         binding.edtFrete.setLocale(new Locale("PT", "br"));
     }
 
+    // Oculta o teclado do dispotivo
     private void ocultaTeclado() {
         InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
         inputMethodManager.hideSoftInputFromWindow(binding.edtPedidoMinimo.getWindowToken(),

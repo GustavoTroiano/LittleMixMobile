@@ -42,7 +42,6 @@
                     android:layout_width="150dp"
                     android:layout_height="150dp"
                     android:padding="8dp"
-                    app:tint="@color/color_gray"
                     tools:layout_editor_absoluteX="105dp"
                     tools:layout_editor_absoluteY="89dp"
                     tools:src="@drawable/ic_galeria" />
